@@ -18,4 +18,5 @@ class BookSearchFragment: Fragment() {
         binding = FragmentBookSearchBinding.inflate(inflater,container,false)
         return binding.root
     }
+
 }

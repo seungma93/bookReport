@@ -9,10 +9,10 @@ sealed class EndPoint{
     data class Search(val sticky : Int): EndPoint()
     object Error: EndPoint()
 }
-interface Book{
+interface BookReport{
     fun navigateFragment(endPoint: EndPoint)
 }
-class MainActivity: AppCompatActivity(), Book {
+class MainActivity: AppCompatActivity(), BookReport {
     private lateinit var binding : ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
