@@ -3,6 +3,7 @@ package com.example.bookreport
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.bookreport.databinding.BookListItemBinding
 import com.example.bookreport.databinding.FragmentBookSearchBinding
 
@@ -12,7 +13,6 @@ class BookListAdapter(): RecyclerView.Adapter<BookListAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = BookListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        println("뷰홀드생성")
         return ViewHolder(binding)
     }
 
@@ -25,10 +25,13 @@ class BookListAdapter(): RecyclerView.Adapter<BookListAdapter.ViewHolder>() {
     }
 
     class ViewHolder(private val binding: BookListItemBinding): RecyclerView.ViewHolder(binding.root){
-
         fun bind(book: Book) {
-            binding.bookTitle.text = book.title
-            println("바인드")
+            binding.apply {
+                bookTitle.text = book.title
+                bookContents.text = book.contents
+                Glide.with(itemView.context).load(book.thumbnail)
+                    .into(bookThumbnail)
+            }
         }
     }
 }

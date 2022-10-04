@@ -6,6 +6,7 @@ import retrofit2.http.Query
 
 interface KakaoAPI {
     @GET("v3/search/book")    // Keyword.json의 정보를 받아옴
+    // suspend 펑션
     suspend fun getSearchKeyword(
         @Header("Authorization") key: String,     // 카카오 API 인증키 [필수]
         @Query("query") query: String             // 검색을 원하는 질의어 [필수]

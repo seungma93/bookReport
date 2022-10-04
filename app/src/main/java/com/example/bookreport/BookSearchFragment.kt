@@ -14,6 +14,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.SimpleTimeZone
 
 class BookSearchFragment: Fragment() {
     companion object {
@@ -21,7 +22,7 @@ class BookSearchFragment: Fragment() {
     }
     private val model: BookViewModel by activityViewModels()
     private lateinit var binding: FragmentBookSearchBinding
-    private var test = mutableListOf<Book>()
+    private var bookData = mutableListOf<Book>()
     private val adapter = BookListAdapter()
 
     override fun onCreateView(
@@ -32,9 +33,11 @@ class BookSearchFragment: Fragment() {
         binding = FragmentBookSearchBinding.inflate(inflater,container,false)
         subscribe()
         binding.apply {
-
             btnSearch.setOnClickListener{
-                model.insertKey("서시")
+                val keyword = edit.text.toString()
+                if( keyword != null){
+                    model.insertKey(keyword)
+                }
             }
         }
         return binding.root
@@ -42,27 +45,24 @@ class BookSearchFragment: Fragment() {
 
     private fun subscribe() {
         model.liveData.observe(requireActivity()) {
-            test = it as MutableList<Book>
-            adapter.datalist = test
+            bookData = it as MutableList<Book>
+            adapter.datalist = bookData
             binding.bookList.adapter = adapter
-
         }
     }
-
 }
 
-
-
 object BookRetrofit{
-    val interceptor = HttpLoggingInterceptor().apply {
+    // 인터셉터 생성
+    private val interceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
-
+    // 클라이언트 생성 인터셉터 삽입
     private val client = OkHttpClient.Builder()
         .addInterceptor(interceptor)
         .build()
-
-    private val retrofit = Retrofit.Builder()   // Retrofit 구성
+    // Retrofit 생성
+    private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .client(client)
         .addConverterFactory(GsonConverterFactory.create())

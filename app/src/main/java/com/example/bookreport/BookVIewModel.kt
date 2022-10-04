@@ -15,7 +15,9 @@ class BookViewModel() : ViewModel() {
     get() = _liveData
 
     fun insertKey(keyword : String) {
+        // 코루틴 스코프 시작
         viewModelScope.launch {
+            // suspend 함수 호출션
             liveData.value = BookRetrofit.api.getSearchKeyword(
                 API_KEY,
                 keyword
