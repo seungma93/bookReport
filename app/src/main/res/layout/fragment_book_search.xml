@@ -18,10 +18,17 @@
         app:layout_constraintLeft_toRightOf="@+id/title_edit"/>
     <Button
         android:id="@+id/btn_search"
-        android:layout_width="100dp"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintRight_toLeftOf="@+id/btn_test"
+        android:text="검색"/>
+    <Button
+        android:id="@+id/btn_test"
+        android:layout_width="50dp"
         android:layout_height="wrap_content"
         app:layout_constraintRight_toRightOf="parent"
-        android:text="검색"/>
+        android:text="테스트"/>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/book_list"

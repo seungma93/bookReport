@@ -2,6 +2,7 @@ package com.example.bookreport
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.lifecycle.liveData
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.bookreport.databinding.BookListItemBinding
@@ -24,13 +25,17 @@ class BookListAdapter(): RecyclerView.Adapter<BookListAdapter.ViewHolder>() {
         return datalist.size
     }
 
+    fun setItems(newItems: List<Book>) {
+        datalist.clear()
+        datalist.addAll(newItems)
+        notifyDataSetChanged()
+    }
     class ViewHolder(private val binding: BookListItemBinding): RecyclerView.ViewHolder(binding.root){
         fun bind(book: Book) {
             binding.apply {
                 bookTitle.text = book.title
                 bookContents.text = book.contents
-                Glide.with(itemView.context).load(book.thumbnail)
-                    .into(bookThumbnail)
+                Glide.with(itemView.context).load(book.thumbnail).into(bookThumbnail)
             }
         }
     }

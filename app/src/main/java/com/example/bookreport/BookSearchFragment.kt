@@ -39,6 +39,11 @@ class BookSearchFragment: Fragment() {
                     model.insertKey(keyword)
                 }
             }
+            btnTest.setOnClickListener {
+                val testlist = model.testKey("서시")
+                adapter.setItems(testlist)
+                binding.bookList.adapter = adapter
+            }
         }
         return binding.root
     }
