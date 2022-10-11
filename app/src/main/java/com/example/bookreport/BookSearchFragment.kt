@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
@@ -23,7 +24,10 @@ class BookSearchFragment: Fragment() {
     private val model: BookViewModel by activityViewModels()
     private lateinit var binding: FragmentBookSearchBinding
     private var bookData = mutableListOf<Book>()
-    private val adapter = BookListAdapter()
+    //private val adapter = BookListAdapter()
+    private val adapter = BookListAdapter { Book ->
+        Toast.makeText(requireContext(), "참가자 ${Book.title} 입니다.", Toast.LENGTH_SHORT).show()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,16 +44,20 @@ class BookSearchFragment: Fragment() {
                 }
             }
             btnTest.setOnClickListener {
-                val testlist = model.testKey("서시")
-                adapter.setItems(testlist)
-                binding.bookList.adapter = adapter
+                model.testKey("서시")
+                model.liveDataTest.observe(requireActivity()) {
+                    adapter.setItems(it)
+                    binding.bookList.adapter = adapter
+                }
             }
         }
         return binding.root
     }
-
+    // 뷰 모델 구독
     private fun subscribe() {
+        // liveData 옵저버
         model.liveData.observe(requireActivity()) {
+            // 변경된 liveData 삽입
             bookData = it as MutableList<Book>
             adapter.datalist = bookData
             binding.bookList.adapter = adapter

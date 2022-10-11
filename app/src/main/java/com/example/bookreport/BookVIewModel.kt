@@ -13,7 +13,9 @@ class BookViewModel() : ViewModel() {
     private val _liveData = MutableLiveData<List<Book>>()
     val liveData: MutableLiveData<List<Book>>
     get() = _liveData
-    var A = mutableListOf<Book>()
+    private val _liveDataTest = MutableLiveData<List<Book>>()
+    val liveDataTest: MutableLiveData<List<Book>>
+    get() = _liveDataTest
 
     fun insertKey(keyword : String) {
         // 코루틴 스코프 시작
@@ -26,14 +28,12 @@ class BookViewModel() : ViewModel() {
         }
     }
 
-    fun testKey(keyword: String): MutableList<Book> {
-
+    fun testKey(keyword: String) {
         viewModelScope.launch {
-            A = BookRetrofit.api.getSearchKeyword(
+            liveDataTest.value = BookRetrofit.api.getSearchKeyword(
                 API_KEY,
                 keyword
-            ).documents as MutableList<Book>
+            ).documents
         }
-        return A
     }
 }
