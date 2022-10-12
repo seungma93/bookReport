@@ -9,8 +9,7 @@ import com.example.bookreport.databinding.BookListItemBinding
 import com.example.bookreport.databinding.FragmentBookSearchBinding
 
 class BookListAdapter(private val itemClick: (Book) -> Unit): RecyclerView.Adapter<BookListAdapter.ViewHolder>() {
-
-    var datalist = mutableListOf<Book>()//리사이클러뷰에서 사용할 데이터 미리 정의 -> 나중에 MainActivity등에서 datalist에 실제 데이터 추가
+    private val datalist = mutableListOf<Book>()//리사이클러뷰에서 사용할 데이터 미리 정의 -> 나중에 MainActivity등에서 datalist에 실제 데이터 추가
     // 뷰홀더 생성
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = BookListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)

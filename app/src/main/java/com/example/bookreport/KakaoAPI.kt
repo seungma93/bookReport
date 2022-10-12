@@ -5,6 +5,10 @@ import retrofit2.http.Header
 import retrofit2.http.Query
 
 interface KakaoAPI {
+    companion object {
+        const val BASE_URL = "https://dapi.kakao.com/"
+        const val API_KEY = "KakaoAK e321aa2f13be335c0cf4ce8f9b1b3561"  // REST API 키
+    }
     @GET("v3/search/book")    // Keyword.json의 정보를 받아옴
     // suspend 펑션
     suspend fun getSearchKeyword(

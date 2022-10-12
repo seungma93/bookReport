@@ -7,24 +7,16 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.liveData
-import com.example.bookreport.BookSearchFragment.Companion.BASE_URL
 import com.example.bookreport.databinding.FragmentBookSearchBinding
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.SimpleTimeZone
 
 class BookSearchFragment: Fragment() {
-    companion object {
-        const val BASE_URL = "https://dapi.kakao.com/"
-    }
     private val model: BookViewModel by activityViewModels()
     private lateinit var binding: FragmentBookSearchBinding
     private var bookData = mutableListOf<Book>()
-    //private val adapter = BookListAdapter()
     private val adapter = BookListAdapter { Book ->
         Toast.makeText(requireContext(), "참가자 ${Book.title} 입니다.", Toast.LENGTH_SHORT).show()
     }
@@ -35,6 +27,7 @@ class BookSearchFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentBookSearchBinding.inflate(inflater,container,false)
+        binding.bookList.adapter = adapter
         subscribe()
         binding.apply {
             btnSearch.setOnClickListener{
@@ -43,24 +36,16 @@ class BookSearchFragment: Fragment() {
                     model.insertKey(keyword)
                 }
             }
-            btnTest.setOnClickListener {
-                model.testKey("서시")
-                model.liveDataTest.observe(requireActivity()) {
-                    adapter.setItems(it)
-                    binding.bookList.adapter = adapter
-                }
-            }
         }
         return binding.root
     }
     // 뷰 모델 구독
     private fun subscribe() {
-        // liveData 옵저버
-        model.liveData.observe(requireActivity()) {
+        // liveData 옵저버 viewLifecycleOwner : 라이프사이클 상태를 다양하게 가지고 있음
+        model.liveData.observe(viewLifecycleOwner) {
             // 변경된 liveData 삽입
             bookData = it as MutableList<Book>
-            adapter.datalist = bookData
-            binding.bookList.adapter = adapter
+            adapter.setItems(it)
         }
     }
 }
@@ -76,7 +61,7 @@ object BookRetrofit{
         .build()
     // Retrofit 생성
     private val retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
+        .baseUrl(KakaoAPI.BASE_URL)
         .client(client)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
