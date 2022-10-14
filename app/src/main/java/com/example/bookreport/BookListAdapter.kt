@@ -1,5 +1,6 @@
 package com.example.bookreport
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.liveData
@@ -17,7 +18,7 @@ class BookListAdapter(private val itemClick: (Book) -> Unit): RecyclerView.Adapt
     }
     // 뷰홀더에서 아이템 바인드
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(datalist[position])
+        holder.bind(datalist[position], position)
     }
     // 아이템 갯수
     override fun getItemCount(): Int {
@@ -32,6 +33,17 @@ class BookListAdapter(private val itemClick: (Book) -> Unit): RecyclerView.Adapt
         // 데이터 변경을 알림
         notifyDataSetChanged()
     }
+    fun addItems(newItems: List<Book>) {
+        Log.v("addItems","애드아이템" )
+        // 데이터 add
+        datalist.addAll(newItems)
+        // 데이터 변경을 알림
+        notifyDataSetChanged()
+    }
+    fun resetItem(){
+        datalist.clear()
+        notifyDataSetChanged()
+    }
     // 뷰홀더 클래스
     class ViewHolder(private val binding: BookListItemBinding, private val itemClick: (Book) -> Unit): RecyclerView.ViewHolder(binding.root){
         private var book: Book? = null
@@ -44,12 +56,14 @@ class BookListAdapter(private val itemClick: (Book) -> Unit): RecyclerView.Adapt
             }
         }
         // 아이템 바인드 펑션
-        fun bind(book: Book) {
+        fun bind(book: Book, position: Int) {
             this.book = book
             binding.apply {
+                bookNo.text = position.toString()
                 bookTitle.text = book.title
                 bookContents.text = book.contents
                 Glide.with(itemView.context).load(book.thumbnail).into(bookThumbnail)
+                Log.v("아이템", position.toString())
             }
         }
     }
