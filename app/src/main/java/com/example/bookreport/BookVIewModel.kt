@@ -1,5 +1,6 @@
 package com.example.bookreport
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,17 +9,21 @@ import kotlinx.coroutines.launch
 
 class BookViewModel() : ViewModel() {
     private val _liveData = MutableLiveData<ResultSearchKeyword>()
-    val liveData: MutableLiveData<ResultSearchKeyword>
+    val liveData: LiveData<ResultSearchKeyword>
     get() = _liveData
+    private val _liveDataHaveKey = MutableLiveData<ResultSearchKeyword>()
+    val liveDataHaveKey: LiveData<ResultSearchKeyword>
+    get() = _liveDataHaveKey
     private val api = BookRetrofit.getRetrofit().create(KakaoAPI::class.java)
 
-    fun insertKey(keyword : String) {
+    fun insertKey(keyword : String, page : Int) {
         // 코루틴 스코프 시작
         viewModelScope.launch {
             // suspend 함수 호출
-            liveData.value = api.getSearchKeyword(
+            _liveData.value = api.getSearchKeyword(
                 //KakaoAPI.API_KEY,
-                keyword
+                keyword,
+                page
             )
         }
     }
@@ -27,7 +32,7 @@ class BookViewModel() : ViewModel() {
         // 코루틴 스코프 시작
         viewModelScope.launch {
             // suspend 함수 호출
-            liveData.value = api.getNextPage(
+            _liveDataHaveKey.value = api.getSearchKeyword(
                 //KakaoAPI.API_KEY,
                 keyword,
                 page
