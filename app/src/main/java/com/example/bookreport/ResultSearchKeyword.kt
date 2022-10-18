@@ -3,7 +3,7 @@ package com.example.bookreport
 import com.google.gson.annotations.SerializedName
 
 data class ResultSearchKeyword(
-    val meta: BookMeta,                // 장소 메타데이터
+    val meta: BookMeta,                // 책 메타데이터
     val documents: List<Book>          // 검색 결과
 )
 
