@@ -1,9 +1,12 @@
-package com.example.bookreport
+package com.example.bookreport.presenter
+
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.example.bookreport.R
 import com.example.bookreport.databinding.ActivityMainBinding
+
 
 sealed class EndPoint{
     data class Search(val sticky : Int): EndPoint()
