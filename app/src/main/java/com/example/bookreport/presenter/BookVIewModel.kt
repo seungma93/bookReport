@@ -14,13 +14,19 @@ class BookViewModel(private val useCase: KakaoBookUseCase) : ViewModel() {
     private val _liveDataHaveKey = MutableLiveData<KakaoBookResultEntity>()
     val liveDataHaveKey: LiveData<KakaoBookResultEntity>
     get() = _liveDataHaveKey
+    private val _error = MutableLiveData<Throwable>()
+    val error: LiveData<Throwable> = _error
 
 
     fun insertKey(keyword : String, page : Int) {
         // 코루틴 스코프 시작
         viewModelScope.launch {
             // suspend 함수 호출
-            _liveData.value = useCase.searchBook(keyword, page)
+            kotlin.runCatching {
+                _liveData.value = useCase.searchBook(keyword, page)
+            }.onFailure {
+                _error.value = it
+            }
         }
     }
 

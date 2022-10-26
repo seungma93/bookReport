@@ -1,6 +1,7 @@
 package com.example.bookreport.data.remote
 
 import com.example.bookreport.ResultSearchKeywordResponse
+import com.example.bookreport.data.entity.KakaoBook
 import com.example.bookreport.data.entity.KakaoBookResultEntity
 import com.example.bookreport.data.mapper.toEntity
 import com.example.bookreport.network.BookRetrofit
@@ -11,22 +12,7 @@ import kotlinx.coroutines.launch
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface KakaoRemoteDataSource{
-    suspend fun getSearchBook(keyword: String, page: Int) : ResultSearchKeywordResponse
-}
-
-class KakaoRemoteDataSourceImpl(private val api: BookRetrofit): KakaoRemoteDataSource {
-   val kakaoApi = api.getRetrofit().create(KakaoAPI::class.java)
-
-    override suspend fun getSearchBook(keyword: String, page: Int) : ResultSearchKeywordResponse {
-        return kakaoApi.getSearchKeyword(
-             keyword,
-             page
-         )
-    }
-}
-
-interface KakaoAPI {
+interface KakaoRemoteDataSource {
     companion object {
         const val BASE_URL = "https://dapi.kakao.com/"
         const val API_KEY = "KakaoAK e321aa2f13be335c0cf4ce8f9b1b3561"  // REST API 키

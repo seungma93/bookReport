@@ -1,10 +1,7 @@
 package com.example.bookreport.network
 
 
-import com.example.bookreport.data.remote.KakaoAPI
-import com.example.bookreport.data.remote.KakaoAPI.Companion.API_KEY
-import com.example.bookreport.data.remote.KakaoAPI.Companion.BASE_URL
-import com.example.bookreport.data.remote.KakaoRemoteDataSourceImpl
+import com.example.bookreport.data.remote.KakaoRemoteDataSource
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -31,7 +28,7 @@ object BookRetrofitImpl: BookRetrofit {
     // Retrofit 생성
     override fun getRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(KakaoAPI.BASE_URL)
+            .baseUrl(KakaoRemoteDataSource.BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -41,7 +38,7 @@ object BookRetrofitImpl: BookRetrofit {
         @Throws(IOException::class)
         override fun intercept(chain: Interceptor.Chain): Response = with(chain) {
             val newRequest = request().newBuilder()
-                .addHeader("Authorization", KakaoAPI.API_KEY)
+                .addHeader("Authorization", KakaoRemoteDataSource.API_KEY)
                 .build()
             proceed(newRequest)
         }

@@ -2,6 +2,8 @@ package com.example.bookreport.presenter
 
 
 import android.os.Bundle
+import android.os.PersistableBundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.bookreport.R
@@ -20,6 +22,7 @@ class MainActivity: AppCompatActivity(), BookReport {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.v("onCreate","")
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -27,8 +30,29 @@ class MainActivity: AppCompatActivity(), BookReport {
             btnFloating.setOnClickListener{
                 val bookSearch = EndPoint.Search(0)
                 navigateFragment(bookSearch)
+                btnFloating.hide()
             }
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
+        super.onCreate(savedInstanceState, persistentState)
+        Log.v("onCreate","")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.v("onResume","")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.v("onStart","")
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        Log.v("onRestart","")
     }
 
     private fun setFragmnet(fragment: Fragment) {

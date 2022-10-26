@@ -36,6 +36,7 @@ class BookListAdapter(private val itemClick: (KakaoBook) -> Unit): RecyclerView.
         Log.v("addItems","애드아이템" )
         // 데이터 add
         datalist.addAll(newItems)
+        Log.v("newItems", newItems[0].title)
         // 데이터 변경을 알림
         notifyDataSetChanged()
     }
