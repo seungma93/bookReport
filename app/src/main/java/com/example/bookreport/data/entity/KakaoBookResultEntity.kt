@@ -22,7 +22,7 @@ data class KakaoBook(
     val publisher: String,              // 도서 출판사
     val translators: List<String>,    // 도서 제목
     val price: Int,                         // 도서 정가
-    val sale_price: Int,               // 도서 판매가
+    val salePrice: Int,               // 도서 판매가
     val thumbnail: String?,              // 도서 표지 미리보기 URL
     val status: String                    // 도서 판매 상태 정보 (정상, 품절, 절판 등) 상황에 따라 변동 가능성이 있으므로 문자열 처리 지양, 단순 노출 요소로 활용 권장
 )
