@@ -1,4 +1,4 @@
-package com.example.bookreport
+package com.example.bookreport.presenter
 
 import android.os.Bundle
 import android.util.Log
@@ -7,31 +7,41 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.OnScrollListener
+import com.example.bookreport.BookViewModel
+import com.example.bookreport.data.entity.KakaoBook
+import com.example.bookreport.data.entity.KakaoBookMeta
+import com.example.bookreport.data.remote.KakaoRemoteDataSource
+
 import com.example.bookreport.databinding.FragmentBookSearchBinding
-import kotlinx.coroutines.*
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import java.lang.Runnable
+import com.example.bookreport.domain.KakaoBookUseCaseImpl
+import com.example.bookreport.network.BookRetrofitImpl
+import com.example.bookreport.repository.KakaoBookRepositoryImpl
+import retrofit2.create
+
+
 class BookSearchFragment: Fragment() {
-    private val model: BookViewModel by activityViewModels()
+    private val viewModel: BookViewModel by lazy{
+        ViewModelProvider(this, factory).get(BookViewModel::class.java)
+    }
+    val kakaoRemoteDataSourceImpl = BookRetrofitImpl.getRetrofit().create(KakaoRemoteDataSource::class.java)
+    val kakaoBookRepositoryImpl = KakaoBookRepositoryImpl(kakaoRemoteDataSourceImpl)
+    val kakaoBookUseCaseImpl = KakaoBookUseCaseImpl(kakaoBookRepositoryImpl)
+    val factory = BookViewModelFactory(kakaoBookUseCaseImpl)
     private lateinit var binding: FragmentBookSearchBinding
-    private var bookData = mutableListOf<Book>()
-    private lateinit var bookMetaData : BookMeta
-    private var bookDataHaveKey = mutableListOf<Book>()
+    private var bookData = mutableListOf<KakaoBook>()
+    private lateinit var bookMetaData : KakaoBookMeta
+    private var bookDataHaveKey = mutableListOf<KakaoBook>()
     private var adapter : BookListAdapter? = null
-    private var isLoading = false
     private val onScrollListener : RecyclerView.OnScrollListener = OnScrollListener()
+    private var isLoading = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        adapter = BookListAdapter { Book ->
-            Toast.makeText(requireContext(), "참가자 ${Book.title} 입니다.", Toast.LENGTH_SHORT).show()
+        adapter = BookListAdapter { KakaoBook ->
+            Toast.makeText(requireContext(), "참가자 ${KakaoBook.title} 입니다.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -48,7 +58,7 @@ class BookSearchFragment: Fragment() {
             btnSearch.setOnClickListener{
                 val keyword = edit.text.toString()
                 if( keyword.isNotEmpty()){
-                    model.insertKey(keyword, 1)
+                    viewModel.insertKey(keyword, 1)
                 }
             }
         }
@@ -63,27 +73,28 @@ class BookSearchFragment: Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
+        adapter = null
         binding.bookList.removeOnScrollListener(onScrollListener)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        adapter = null
-    }
     // 뷰 모델 구독
     private fun subscribe() {
         // liveData 옵저버 viewLifecycleOwner : 라이프사이클 상태를 다양하게 가지고 있음
-        model.liveData.observe(viewLifecycleOwner) {
+        viewModel.liveData.observe(viewLifecycleOwner) {
             // 변경된 liveData 삽입
-            bookMetaData = it.meta
-            bookData = it.documents as MutableList<Book>
+            if(it.meta != null) {
+                bookMetaData = it.meta
+            }
+            bookData = it.documents as MutableList<KakaoBook>
             Log.v("구독", "구독")
                 adapter?.setItems(bookData)
         }
-        model.liveDataHaveKey.observe(viewLifecycleOwner){
-            bookMetaData = it.meta
-            bookDataHaveKey = it.documents as MutableList<Book>
-            adapter?.addItems(bookData)
+        viewModel.liveDataHaveKey.observe(viewLifecycleOwner){
+            if(it.meta != null) {
+                bookMetaData = it.meta
+            }
+            bookDataHaveKey = it.documents as MutableList<KakaoBook>
+            adapter?.addItems(bookDataHaveKey)
         }
     }
     // 스크롤 리스너 -> 뷰의 마지막에 닿았을때 동작
@@ -96,7 +107,7 @@ class BookSearchFragment: Fragment() {
         val keyword = binding.edit.text.toString()
         val page = ((adapter?.itemCount)?.div(10) ?: 10) + 1
         Log.v("페이지", page.toString())
-        model.insertPage(keyword, page)
+        viewModel.insertPage(keyword, page)
         isLoading = false
     }
 
