@@ -30,7 +30,7 @@ fun BookResponse.toEntity() = KakaoBook(
     publisher = publisher.orEmpty(),
     translators = translators.orEmpty(),
     price = price ?:0,
-    sale_price = sale_price ?:0,
+    salePrice = sale_price ?:0,
     thumbnail = thumbnail.orEmpty(),
     status = status.orEmpty()
 )

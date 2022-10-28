@@ -25,6 +25,7 @@ class BookListAdapter(private val itemClick: (KakaoBook) -> Unit): RecyclerView.
     }
     // 아이템 변경시 호출
     fun setItems(newItems: List<KakaoBook>) {
+        Log.v("setItem","")
         // data 초기화
         datalist.clear()
         // 모든 데이터 add
@@ -32,14 +33,7 @@ class BookListAdapter(private val itemClick: (KakaoBook) -> Unit): RecyclerView.
         // 데이터 변경을 알림
         notifyDataSetChanged()
     }
-    fun addItems(newItems: List<KakaoBook>) {
-        Log.v("addItems","애드아이템" )
-        // 데이터 add
-        datalist.addAll(newItems)
-        Log.v("newItems", newItems[0].title)
-        // 데이터 변경을 알림
-        notifyDataSetChanged()
-    }
+
     fun resetItem(){
         datalist.clear()
         notifyDataSetChanged()

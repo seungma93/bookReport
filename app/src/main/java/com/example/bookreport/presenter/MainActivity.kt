@@ -7,11 +7,13 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.bookreport.R
+import com.example.bookreport.data.entity.KakaoBook
 import com.example.bookreport.databinding.ActivityMainBinding
 
 
 sealed class EndPoint{
     data class Search(val sticky : Int): EndPoint()
+    data class Write(val kakaoBook: KakaoBook): EndPoint()
     object Error: EndPoint()
 }
 interface BookReport{
@@ -55,7 +57,12 @@ class MainActivity: AppCompatActivity(), BookReport {
         Log.v("onRestart","")
     }
 
-    private fun setFragmnet(fragment: Fragment) {
+    override fun onPause() {
+        super.onPause()
+        Log.v("onPause","")
+    }
+
+    fun setFragment(fragment: Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.frame_layout, fragment)
             .addToBackStack(null)
@@ -69,7 +76,13 @@ class MainActivity: AppCompatActivity(), BookReport {
                     val fragment = BookSearchFragment()
                     //it.putInt(PlayerListFragment.PLAYER_NUMBER_KEY, endPoint.playerNum)
                     //fragment.arguments = it
-                    setFragmnet(fragment)
+                    setFragment(fragment)
+                }
+                is EndPoint.Write -> {
+                    val fragment = ReportWriteFragment()
+                    it.putSerializable(BookSearchFragment.KAKAO_BOOK_KEY, endPoint.kakaoBook)
+                    fragment.arguments = it
+                    setFragment(fragment)
                 }
                 is EndPoint.Error -> {
                 }
