@@ -30,11 +30,11 @@ class BookSearchFragment : Fragment() {
     private val viewModel: BookViewModel by lazy {
         ViewModelProvider(this, factory).get(BookViewModel::class.java)
     }
-    val kakaoRemoteDataSourceImpl =
+    private val kakaoRemoteDataSourceImpl =
         BookRetrofitImpl.getRetrofit().create(KakaoRemoteDataSource::class.java)
-    val kakaoBookRepositoryImpl = KakaoBookRepositoryImpl(kakaoRemoteDataSourceImpl)
-    val kakaoBookUseCaseImpl = KakaoBookUseCaseImpl(kakaoBookRepositoryImpl)
-    val factory = BookViewModelFactory(kakaoBookUseCaseImpl)
+    private val kakaoBookRepositoryImpl = KakaoBookRepositoryImpl(kakaoRemoteDataSourceImpl)
+    private val kakaoBookUseCaseImpl = KakaoBookUseCaseImpl(kakaoBookRepositoryImpl)
+    private val factory = BookViewModelFactory(kakaoBookUseCaseImpl)
     private lateinit var binding: FragmentBookSearchBinding
     private var adapter: BookListAdapter? = null
     private val onScrollListener: RecyclerView.OnScrollListener = OnScrollListener()

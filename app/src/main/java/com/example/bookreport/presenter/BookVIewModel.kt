@@ -39,7 +39,7 @@ class BookViewModel(private val useCase: KakaoBookUseCase) : ViewModel() {
         }
     }
 
-    fun insertNewKey(keyword: String, page: Int){
+    fun insertNewKey(keyword: String, page: Int) {
         if (isLoading == false) {
             // 코루틴 스코프 시작
             viewModelScope.launch {
