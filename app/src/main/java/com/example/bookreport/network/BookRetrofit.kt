@@ -10,12 +10,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 
-interface BookRetrofit {
-    fun getRetrofit(): Retrofit
-}
-
 // 레트로핏 object
-object BookRetrofitImpl : BookRetrofit {
+object BookRetrofitImpl {
     // 인터셉터 생성
     private val interceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -28,7 +24,7 @@ object BookRetrofitImpl : BookRetrofit {
         .build()
 
     // Retrofit 생성
-    override fun getRetrofit(): Retrofit {
+    fun getRetrofit(): Retrofit {
         return Retrofit.Builder()
             .baseUrl(KakaoRemoteDataSource.BASE_URL)
             .client(client)

@@ -1,34 +1,24 @@
 package com.example.bookreport.presenter
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.example.bookreport.data.entity.KakaoBook
-import com.example.bookreport.data.entity.Report
-import com.example.bookreport.data.local.ReportLocalDataSource
+import com.example.bookreport.data.entity.room.Report
 import com.example.bookreport.data.local.ReportLocalDataSourceImpl
 import com.example.bookreport.databinding.FragmentReportListBinding
-import com.example.bookreport.databinding.FragmentReportWriteBinding
-import com.example.bookreport.domain.ReportUseCase
-import com.example.bookreport.domain.SaveReportUseCaseImpl
-import com.example.bookreport.repository.ReportRepository
+import com.example.bookreport.domain.ReportUseCaseImpl
 import com.example.bookreport.repository.ReportRepositoryImpl
 
 class ReportListFragment : Fragment() {
     private lateinit var binding: FragmentReportListBinding
-    private lateinit var reportLocalDataSourceImpl: ReportLocalDataSource
-    private lateinit var reportRepositoryImpl: ReportRepository
-    private lateinit var saveReportUseCaseImpl: ReportUseCase
-    private lateinit var factory: ReportViewModelFactory
     private val viewModel: ReportViewModel by lazy {
+        val reportLocalDataSourceImpl = ReportLocalDataSourceImpl(requireContext())
+        val reportRepositoryImpl = ReportRepositoryImpl(reportLocalDataSourceImpl)
+        val saveReportUseCaseImpl = ReportUseCaseImpl(reportRepositoryImpl)
+        val factory = ReportViewModelFactory(saveReportUseCaseImpl)
         ViewModelProvider(this, factory).get(ReportViewModel::class.java)
     }
     private var adapter: ReportListAdapter? = null
@@ -44,10 +34,7 @@ class ReportListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentReportListBinding.inflate(inflater, container, false)
-        reportLocalDataSourceImpl = ReportLocalDataSourceImpl(requireContext())
-        reportRepositoryImpl = ReportRepositoryImpl(reportLocalDataSourceImpl)
-        saveReportUseCaseImpl = SaveReportUseCaseImpl(reportRepositoryImpl)
-        factory = ReportViewModelFactory(saveReportUseCaseImpl)
+
         viewModel.load()
         subscribe()
 

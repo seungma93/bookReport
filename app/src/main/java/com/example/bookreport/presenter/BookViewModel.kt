@@ -1,17 +1,18 @@
 package com.example.bookreport
 
-import androidx.compose.runtime.key
-import androidx.core.widget.ContentLoadingProgressBar
 import androidx.lifecycle.*
+import com.example.bookreport.data.entity.BookListEntity
+import com.example.bookreport.data.entity.KakaoBook
 import com.example.bookreport.data.entity.KakaoBookResultEntity
 import com.example.bookreport.domain.KakaoBookUseCase
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 
 class BookViewModel(private val useCase: KakaoBookUseCase) : ViewModel() {
-    private val _liveData = MutableLiveData<KakaoBookResultEntity>()
-    val liveData: LiveData<KakaoBookResultEntity>
-        get() = _liveData
+    private val _bookLiveData = MutableLiveData<BookListEntity>()
+    val bookLiveData: LiveData<BookListEntity>
+        get() = _bookLiveData
     private val _error = MutableLiveData<Throwable>()
     val error: LiveData<Throwable>
         get() = _error
@@ -19,18 +20,15 @@ class BookViewModel(private val useCase: KakaoBookUseCase) : ViewModel() {
 
     fun insertKey(keyword: String, page: Int) {
 
-        if (isLoading == false) {
+        if (isLoading.not()) {
             // 코루틴 스코프 시작
             viewModelScope.launch {
                 isLoading = true
                 // suspend 함수 호출
                 kotlin.runCatching {
                     val result = useCase.searchBook(keyword, page)
-                    val newList = liveData.value?.documents.orEmpty() + result.documents
-                    _liveData.value = KakaoBookResultEntity(
-                        meta = result.meta,
-                        documents = newList
-                    )
+                    val old = bookLiveData.value?.entities.orEmpty()
+                    _bookLiveData.value = BookListEntity(old + result.entities, result.meta)
                 }.onFailure {
                     _error.value = it
                 }
@@ -40,13 +38,13 @@ class BookViewModel(private val useCase: KakaoBookUseCase) : ViewModel() {
     }
 
     fun insertNewKey(keyword: String, page: Int) {
-        if (isLoading == false) {
+        if (!isLoading) {
             // 코루틴 스코프 시작
             viewModelScope.launch {
                 isLoading = true
                 // suspend 함수 호출
                 kotlin.runCatching {
-                    _liveData.value = useCase.searchBook(keyword, page)
+                    _bookLiveData.value = useCase.searchBook(keyword, page)
                 }.onFailure {
                     _error.value = it
                 }

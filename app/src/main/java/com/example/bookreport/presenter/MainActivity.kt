@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity(), BookReport {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.v("onCreate", "")
+        Log.v("생명주기", "onCreate")
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val reportList = EndPoint.List(0)
@@ -35,40 +35,35 @@ class MainActivity : AppCompatActivity(), BookReport {
     }
 
 
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
-        Log.v("onCreate", "")
-    }
-
     override fun onResume() {
         super.onResume()
-        Log.v("onResume", "")
+        Log.v("생명주기", "onResume")
     }
 
     override fun onStart() {
         super.onStart()
-        Log.v("onStart", "")
+        Log.v("생명주기", "onStart")
     }
 
     override fun onRestart() {
         super.onRestart()
-        Log.v("onRestart", "")
+        Log.v("생명주기", "onRestart")
     }
 
     override fun onPause() {
         super.onPause()
-        Log.v("onPause", "")
+        Log.v("생명주기", "onPause")
     }
 
-    fun setFragment(fragment: Fragment) {
+    private fun setFragment(fragment: Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.frame_layout, fragment)
             .addToBackStack(null)
             .commit()
     }
 
-    override fun navigateFragment(endPoint: EndPoint) = with(Bundle()) {
-        this.let {
+    override fun navigateFragment(endPoint: EndPoint) {
+        Bundle().let{
             when (endPoint) {
                 is EndPoint.Search -> {
                     val fragment = BookSearchFragment()

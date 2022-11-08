@@ -1,6 +1,7 @@
-package com.example.bookreport.data.entity
+package com.example.bookreport.data.entity.room
 
 import androidx.room.*
+import com.example.bookreport.data.entity.room.Report
 
 
 @Dao

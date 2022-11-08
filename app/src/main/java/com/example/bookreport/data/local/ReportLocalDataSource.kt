@@ -1,9 +1,8 @@
 package com.example.bookreport.data.local
 
 import android.content.Context
-import android.util.Log
-import com.example.bookreport.data.entity.Report
-import com.example.bookreport.data.entity.ReportDatabase
+import com.example.bookreport.data.entity.room.Report
+import com.example.bookreport.data.entity.room.ReportDatabase
 import com.example.bookreport.data.entity.ReportEntity
 
 interface ReportLocalDataSource {

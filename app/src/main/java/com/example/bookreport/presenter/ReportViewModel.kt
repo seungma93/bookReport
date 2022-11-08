@@ -1,12 +1,10 @@
 package com.example.bookreport.presenter
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.bookreport.data.entity.KakaoBookResultEntity
-import com.example.bookreport.data.entity.Report
+import com.example.bookreport.data.entity.room.Report
 import com.example.bookreport.data.entity.ReportEntity
 import com.example.bookreport.domain.ReportUseCase
 import kotlinx.coroutines.launch

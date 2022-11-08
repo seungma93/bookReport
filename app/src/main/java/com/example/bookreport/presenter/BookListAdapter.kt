@@ -5,19 +5,25 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.bookreport.data.entity.BookAndBookMark
+import com.example.bookreport.data.entity.BookListEntity
 import com.example.bookreport.data.entity.KakaoBook
 import com.example.bookreport.databinding.BookListItemBinding
 
-class BookListAdapter(private val itemClick: (KakaoBook) -> Unit) :
+class BookListAdapter(
+    private val itemClick: (BookAndBookMark) -> Unit,
+    private val itemClick2: (BookAndBookMark) -> Boolean,
+    private val itemClick3: (BookAndBookMark) -> Boolean
+) :
     RecyclerView.Adapter<BookListAdapter.ViewHolder>() {
     private val datalist =
-        mutableListOf<KakaoBook>()//리사이클러뷰에서 사용할 데이터 미리 정의 -> 나중에 MainActivity등에서 datalist에 실제 데이터 추가
+        mutableListOf<BookAndBookMark>()//리사이클러뷰에서 사용할 데이터 미리 정의 -> 나중에 MainActivity등에서 datalist에 실제 데이터 추가
 
     // 뷰홀더 생성
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding =
             BookListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHolder(binding, itemClick)
+        return ViewHolder(binding, itemClick, itemClick2, itemClick3)
     }
 
     // 뷰홀더에서 아이템 바인드
@@ -31,7 +37,7 @@ class BookListAdapter(private val itemClick: (KakaoBook) -> Unit) :
     }
 
     // 아이템 변경시 호출
-    fun setItems(newItems: List<KakaoBook>) {
+    fun setItems(newItems: List<BookAndBookMark>) {
         Log.v("setItem", "")
         // data 초기화
         datalist.clear()
@@ -41,17 +47,14 @@ class BookListAdapter(private val itemClick: (KakaoBook) -> Unit) :
         notifyDataSetChanged()
     }
 
-    fun resetItem() {
-        datalist.clear()
-        notifyDataSetChanged()
-    }
-
     // 뷰홀더 클래스
     class ViewHolder(
         private val binding: BookListItemBinding,
-        private val itemClick: (KakaoBook) -> Unit
+        private val itemClick: (BookAndBookMark) -> Unit,
+        private val itemClick2: (BookAndBookMark) -> Boolean,
+        private val itemClick3: (BookAndBookMark) -> Boolean
     ) : RecyclerView.ViewHolder(binding.root) {
-        private var book: KakaoBook? = null
+        private var book: BookAndBookMark? = null
 
         init {
             binding.root.setOnClickListener {
@@ -59,16 +62,29 @@ class BookListAdapter(private val itemClick: (KakaoBook) -> Unit) :
                     itemClick(it)
                 }
             }
+            binding.btnBookmark.setOnClickListener {
+                book?.let {
+                    if (!(binding.btnBookmark.isSelected)) {
+                        if (itemClick2(it)) binding.btnBookmark.isSelected =
+                            true else Log.v("BookListAdapter", "오류발생")
+                    } else {
+                        if (itemClick3(it)) binding.btnBookmark.isSelected =
+                            false else Log.v("BookListAdapter", "오류발생")
+                    }
+                }
+            }
         }
 
+
         // 아이템 바인드 펑션
-        fun bind(book: KakaoBook, position: Int) {
-            this.book = book
+        fun bind(entity: BookAndBookMark, position: Int) = with(entity) {
+            this@ViewHolder.book = this
             binding.apply {
                 bookNo.text = position.toString()
                 bookTitle.text = book.title
                 bookContents.text = book.contents
                 Glide.with(itemView.context).load(book.thumbnail).into(bookThumbnail)
+                btnBookmark.isSelected = bookMark != null
                 Log.v("아이템", position.toString())
             }
         }

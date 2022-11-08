@@ -1,4 +1,4 @@
-package com.example.bookreport.data.entity
+package com.example.bookreport.data.entity.room
 
 import android.content.Context
 import androidx.room.Database
