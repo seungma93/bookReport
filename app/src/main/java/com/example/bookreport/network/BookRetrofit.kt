@@ -10,21 +10,23 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 
-interface BookRetrofit{
+interface BookRetrofit {
     fun getRetrofit(): Retrofit
 }
 
 // 레트로핏 object
-object BookRetrofitImpl: BookRetrofit {
+object BookRetrofitImpl : BookRetrofit {
     // 인터셉터 생성
     private val interceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
+
     // 클라이언트 생성 인터셉터 삽입
     private val client = OkHttpClient.Builder()
         .addInterceptor(interceptor)
         .addInterceptor(AppInterceptor())
         .build()
+
     // Retrofit 생성
     override fun getRetrofit(): Retrofit {
         return Retrofit.Builder()
@@ -33,6 +35,7 @@ object BookRetrofitImpl: BookRetrofit {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
+
     // 인터셉터
     class AppInterceptor : Interceptor {
         @Throws(IOException::class)

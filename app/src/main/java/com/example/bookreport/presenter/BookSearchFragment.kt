@@ -22,26 +22,30 @@ import com.example.bookreport.repository.KakaoBookRepositoryImpl
 import retrofit2.create
 
 
-class BookSearchFragment: Fragment() {
-    private val viewModel: BookViewModel by lazy{
+class BookSearchFragment : Fragment() {
+    companion object {
+        const val KAKAO_BOOK_KEY = "KAKAO_BOOK_KEY"
+    }
+
+    private val viewModel: BookViewModel by lazy {
         ViewModelProvider(this, factory).get(BookViewModel::class.java)
     }
-    val kakaoRemoteDataSourceImpl = BookRetrofitImpl.getRetrofit().create(KakaoRemoteDataSource::class.java)
-    val kakaoBookRepositoryImpl = KakaoBookRepositoryImpl(kakaoRemoteDataSourceImpl)
-    val kakaoBookUseCaseImpl = KakaoBookUseCaseImpl(kakaoBookRepositoryImpl)
-    val factory = BookViewModelFactory(kakaoBookUseCaseImpl)
+    private val kakaoRemoteDataSourceImpl =
+        BookRetrofitImpl.getRetrofit().create(KakaoRemoteDataSource::class.java)
+    private val kakaoBookRepositoryImpl = KakaoBookRepositoryImpl(kakaoRemoteDataSourceImpl)
+    private val kakaoBookUseCaseImpl = KakaoBookUseCaseImpl(kakaoBookRepositoryImpl)
+    private val factory = BookViewModelFactory(kakaoBookUseCaseImpl)
     private lateinit var binding: FragmentBookSearchBinding
-    private var bookData = mutableListOf<KakaoBook>()
-    private lateinit var bookMetaData : KakaoBookMeta
-    private var bookDataHaveKey = mutableListOf<KakaoBook>()
-    private var adapter : BookListAdapter? = null
-    private val onScrollListener : RecyclerView.OnScrollListener = OnScrollListener()
-    private var isLoading = false
+    private var adapter: BookListAdapter? = null
+    private val onScrollListener: RecyclerView.OnScrollListener = OnScrollListener()
+    private lateinit var bookMetaData: KakaoBookMeta
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         adapter = BookListAdapter { KakaoBook ->
-            Toast.makeText(requireContext(), "참가자 ${KakaoBook.title} 입니다.", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(requireContext(), "참가자 ${KakaoBook.title} 입니다.", Toast.LENGTH_SHORT).show()
+            val endPoint = EndPoint.Write(KakaoBook)
+            (requireActivity() as? BookReport)?.navigateFragment(endPoint)
         }
     }
 
@@ -50,15 +54,15 @@ class BookSearchFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentBookSearchBinding.inflate(inflater,container,false)
+        binding = FragmentBookSearchBinding.inflate(inflater, container, false)
         subscribe()
         initScrollListener()
         binding.apply {
             bookList.adapter = adapter
-            btnSearch.setOnClickListener{
+            btnSearch.setOnClickListener {
                 val keyword = edit.text.toString()
-                if( keyword.isNotEmpty()){
-                    viewModel.insertKey(keyword, 1)
+                if (keyword.isNotEmpty()) {
+                    viewModel.insertNewKey(keyword, 1)
                 }
             }
         }
@@ -82,51 +86,55 @@ class BookSearchFragment: Fragment() {
         // liveData 옵저버 viewLifecycleOwner : 라이프사이클 상태를 다양하게 가지고 있음
         viewModel.liveData.observe(viewLifecycleOwner) {
             // 변경된 liveData 삽입
-            if(it.meta != null) {
+            if (it.meta != null) {
                 bookMetaData = it.meta
             }
-            bookData = it.documents as MutableList<KakaoBook>
             Log.v("구독", "구독")
-                adapter?.setItems(bookData)
+            adapter?.setItems(it.documents as MutableList<KakaoBook>)
+            val page = (adapter!!.itemCount / 10) + 1
+            Log.v("아답터아이템갯수", adapter!!.itemCount.toString())
+            //adapter!!.notifyItemRangeInserted((page - 1) * 10, 10)
         }
-        viewModel.liveDataHaveKey.observe(viewLifecycleOwner){
-            if(it.meta != null) {
-                bookMetaData = it.meta
-            }
-            bookDataHaveKey = it.documents as MutableList<KakaoBook>
-            adapter?.addItems(bookDataHaveKey)
-        }
+
     }
+
     // 스크롤 리스너 -> 뷰의 마지막에 닿았을때 동작
-    private fun initScrollListener(){
+    private fun initScrollListener() {
         binding.bookList.addOnScrollListener(onScrollListener)
     }
 
-    private fun moreItems(){
+    private fun moreItems() {
         //Log.v("키워드", "$keyword")
         val keyword = binding.edit.text.toString()
         val page = ((adapter?.itemCount)?.div(10) ?: 10) + 1
+        //val page = (adapter!!.itemCount/10) + 1
         Log.v("페이지", page.toString())
-        viewModel.insertPage(keyword, page)
-        isLoading = false
+        viewModel.insertKey(keyword, page)
     }
 
     private inner class OnScrollListener : RecyclerView.OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            val lastVisibleItemPosition =
+                (recyclerView.layoutManager as LinearLayoutManager?)!!.findLastVisibleItemPosition()
+            val itemCount = adapter?.itemCount?.minus(1) ?: 10
             super.onScrolled(recyclerView, dx, dy)
-            Log.v("initscroll","스크롤")
-            if(!isLoading){
-                if ((recyclerView.layoutManager as LinearLayoutManager?)!!.findLastCompletelyVisibleItemPosition() == adapter?.itemCount?.minus(
-                        1
-                    ) ?: 10){
-                    Log.v("initscroll", "스크롤2")
-                    Log.v("isend", "${bookMetaData.isEnd}")
-                    // 다음 페이지가 있을때 동작
-                    if(bookMetaData.isEnd == false) {
-                        isLoading = true
-                        Log.v("initscroll", "스크롤3")
-                        moreItems()
-                    }
+            Log.v("initscroll", "스크롤")
+
+            Log.v(
+                "lastVisible",
+                (recyclerView.layoutManager as LinearLayoutManager?)!!.findLastVisibleItemPosition()
+                    .toString()
+            )
+            Log.v("itmeCount", itemCount.toString())
+            if (lastVisibleItemPosition == itemCount) {
+                Log.v("initscroll", "스크롤2")
+                Log.v("isend", "${bookMetaData.isEnd}")
+                // 다음 페이지가 있을때 동작
+                if (bookMetaData.isEnd == false) {
+                    Log.v("initscroll", "스크롤3")
+                    moreItems()
+                } else {
+                    Toast.makeText(requireContext(), "마지막 페이지 입니다.", Toast.LENGTH_SHORT).show()
                 }
             }
         }

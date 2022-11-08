@@ -17,6 +17,7 @@ interface KakaoRemoteDataSource {
         const val BASE_URL = "https://dapi.kakao.com/"
         const val API_KEY = "KakaoAK e321aa2f13be335c0cf4ce8f9b1b3561"  // REST API 키
     }
+
     @GET("v3/search/book")    // Keyword.json의 정보를 받아옴
     suspend fun getSearchKeyword(
         //@Header("Authorization") key: String,     // 카카오 API 인증키 [필수]

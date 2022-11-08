@@ -1,5 +1,8 @@
 package com.example.bookreport.data.entity
 
+import com.google.gson.annotations.SerializedName
+import java.io.Serializable
+
 
 data class KakaoBookResultEntity(
     val meta: KakaoBookMeta?,                // 책 메타데이터
@@ -25,4 +28,4 @@ data class KakaoBook(
     val salePrice: Int,               // 도서 판매가
     val thumbnail: String?,              // 도서 표지 미리보기 URL
     val status: String                    // 도서 판매 상태 정보 (정상, 품절, 절판 등) 상황에 따라 변동 가능성이 있으므로 문자열 처리 지양, 단순 노출 요소로 활용 권장
-)
+) : Serializable

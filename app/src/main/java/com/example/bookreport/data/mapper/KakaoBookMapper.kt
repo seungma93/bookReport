@@ -9,7 +9,7 @@ import com.example.bookreport.data.entity.KakaoBookResultEntity
 
 fun ResultSearchKeywordResponse.toEntity() = KakaoBookResultEntity(
     meta = meta.toEntity(),
-    documents = documents.map{
+    documents = documents.map {
         it.toEntity()
     }
 )
@@ -29,8 +29,8 @@ fun BookResponse.toEntity() = KakaoBook(
     authors = authors.orEmpty(),
     publisher = publisher.orEmpty(),
     translators = translators.orEmpty(),
-    price = price ?:0,
-    sale_price = sale_price ?:0,
+    price = price ?: 0,
+    salePrice = sale_price ?: 0,
     thumbnail = thumbnail.orEmpty(),
     status = status.orEmpty()
 )
