@@ -1,7 +1,6 @@
 package com.example.bookreport.domain
 
-import android.util.Log
-import com.example.bookreport.data.entity.Report
+import com.example.bookreport.data.entity.room.Report
 import com.example.bookreport.data.entity.ReportEntity
 import com.example.bookreport.repository.ReportRepository
 
@@ -10,10 +9,10 @@ interface ReportUseCase {
     suspend fun loadReport(): ReportEntity
 }
 
-class SaveReportUseCaseImpl(private val reportRepository: ReportRepository) : ReportUseCase {
+class ReportUseCaseImpl(private val reportRepository: ReportRepository) : ReportUseCase {
 
     override suspend fun saveReport(report: Report) {
-        reportRepository.selectSave(report)
+        reportRepository.save(report)
     }
 
     override suspend fun loadReport(): ReportEntity {

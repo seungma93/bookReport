@@ -1,14 +1,6 @@
 package com.example.bookreport.data.remote
 
 import com.example.bookreport.ResultSearchKeywordResponse
-import com.example.bookreport.data.entity.KakaoBook
-import com.example.bookreport.data.entity.KakaoBookResultEntity
-import com.example.bookreport.data.mapper.toEntity
-import com.example.bookreport.network.BookRetrofit
-import com.example.bookreport.network.BookRetrofitImpl
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import retrofit2.http.GET
 import retrofit2.http.Query
 

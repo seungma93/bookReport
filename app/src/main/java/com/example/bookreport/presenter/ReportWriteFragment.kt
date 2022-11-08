@@ -1,22 +1,19 @@
 package com.example.bookreport.presenter
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
-import com.example.bookreport.BookViewModel
 import com.example.bookreport.data.entity.KakaoBook
-import com.example.bookreport.data.entity.Report
-import com.example.bookreport.data.entity.ReportEntity
+import com.example.bookreport.data.entity.room.Report
 import com.example.bookreport.data.local.ReportLocalDataSource
 import com.example.bookreport.data.local.ReportLocalDataSourceImpl
 import com.example.bookreport.databinding.FragmentReportWriteBinding
 import com.example.bookreport.domain.ReportUseCase
-import com.example.bookreport.domain.SaveReportUseCaseImpl
+import com.example.bookreport.domain.ReportUseCaseImpl
 import com.example.bookreport.repository.ReportRepository
 import com.example.bookreport.repository.ReportRepositoryImpl
 
@@ -40,7 +37,7 @@ class ReportWriteFragment : Fragment() {
         binding = FragmentReportWriteBinding.inflate(inflater, container, false)
         reportLocalDataSourceImpl = ReportLocalDataSourceImpl(requireContext())
         reportRepositoryImpl = ReportRepositoryImpl(reportLocalDataSourceImpl)
-        saveReportUseCaseImpl = SaveReportUseCaseImpl(reportRepositoryImpl)
+        saveReportUseCaseImpl = ReportUseCaseImpl(reportRepositoryImpl)
         factory = ReportViewModelFactory(saveReportUseCaseImpl)
 
         binding.apply {
