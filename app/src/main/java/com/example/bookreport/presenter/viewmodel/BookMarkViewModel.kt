@@ -1,4 +1,4 @@
-package com.example.bookreport
+package com.example.bookreport.presenter.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.*

@@ -11,9 +11,9 @@ import com.example.bookreport.data.entity.KakaoBook
 import com.example.bookreport.databinding.BookListItemBinding
 
 class BookListAdapter(
-    private val itemClick: (BookAndBookMark) -> Unit,
-    private val itemClick2: (BookAndBookMark) -> Boolean,
-    private val itemClick3: (BookAndBookMark) -> Boolean
+    private val itemClick: (BookAndBookMark, Boolean) -> Unit,
+    private val bookMarkOn: (BookAndBookMark) -> Boolean,
+    private val bookMarkOff: (BookAndBookMark) -> Boolean
 ) :
     RecyclerView.Adapter<BookListAdapter.ViewHolder>() {
     private val datalist =
@@ -23,7 +23,7 @@ class BookListAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding =
             BookListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHolder(binding, itemClick, itemClick2, itemClick3)
+        return ViewHolder(binding, itemClick, bookMarkOn, bookMarkOff)
     }
 
     // 뷰홀더에서 아이템 바인드
@@ -50,31 +50,30 @@ class BookListAdapter(
     // 뷰홀더 클래스
     class ViewHolder(
         private val binding: BookListItemBinding,
-        private val itemClick: (BookAndBookMark) -> Unit,
-        private val itemClick2: (BookAndBookMark) -> Boolean,
-        private val itemClick3: (BookAndBookMark) -> Boolean
+        private val itemClick: (BookAndBookMark, Boolean) -> Unit,
+        private val bookMarkOn: (BookAndBookMark) -> Boolean,
+        private val bookMarkOff: (BookAndBookMark) -> Boolean
     ) : RecyclerView.ViewHolder(binding.root) {
         private var book: BookAndBookMark? = null
 
         init {
             binding.root.setOnClickListener {
                 book?.let {
-                    itemClick(it)
+                    itemClick(it, binding.btnBookmark.isSelected)
                 }
             }
             binding.btnBookmark.setOnClickListener {
                 book?.let {
                     if (!(binding.btnBookmark.isSelected)) {
-                        if (itemClick2(it)) binding.btnBookmark.isSelected =
+                        if (bookMarkOn(it)) binding.btnBookmark.isSelected =
                             true else Log.v("BookListAdapter", "오류발생")
                     } else {
-                        if (itemClick3(it)) binding.btnBookmark.isSelected =
+                        if (bookMarkOff(it)) binding.btnBookmark.isSelected =
                             false else Log.v("BookListAdapter", "오류발생")
                     }
                 }
             }
         }
-
 
         // 아이템 바인드 펑션
         fun bind(entity: BookAndBookMark, position: Int) = with(entity) {

@@ -1,4 +1,4 @@
-package com.example.bookreport.presenter
+package com.example.bookreport.presenter.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

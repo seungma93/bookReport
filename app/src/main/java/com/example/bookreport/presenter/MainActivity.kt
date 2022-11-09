@@ -2,19 +2,23 @@ package com.example.bookreport.presenter
 
 
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.bookreport.R
-import com.example.bookreport.data.entity.KakaoBook
+import com.example.bookreport.data.entity.BookAndBookMark
 import com.example.bookreport.databinding.ActivityMainBinding
+import com.example.bookreport.presenter.fragment.BookMarkListFragment
+import com.example.bookreport.presenter.fragment.BookSearchFragment
+import com.example.bookreport.presenter.fragment.ReportListFragment
+import com.example.bookreport.presenter.fragment.ReportWriteFragment
 
 
 sealed class EndPoint {
     data class Search(val sticky: Int) : EndPoint()
-    data class Write(val kakaoBook: KakaoBook) : EndPoint()
-    data class List(val sticky: Int) : EndPoint()
+    data class ReportWrite(val bookAndBookMark: BookAndBookMark, val isSelected: Boolean) : EndPoint()
+    data class ReportList(val sticky: Int) : EndPoint()
+    data class BookMarkList(val sticky: Int): EndPoint()
     object Error : EndPoint()
 }
 
@@ -30,7 +34,7 @@ class MainActivity : AppCompatActivity(), BookReport {
         Log.v("생명주기", "onCreate")
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val reportList = EndPoint.List(0)
+        val reportList = EndPoint.ReportList(0)
         navigateFragment(reportList)
     }
 
@@ -63,20 +67,26 @@ class MainActivity : AppCompatActivity(), BookReport {
     }
 
     override fun navigateFragment(endPoint: EndPoint) {
-        Bundle().let{
+
+        Bundle().let {
             when (endPoint) {
                 is EndPoint.Search -> {
                     val fragment = BookSearchFragment()
                     setFragment(fragment)
                 }
-                is EndPoint.Write -> {
+                is EndPoint.ReportWrite -> {
                     val fragment = ReportWriteFragment()
-                    it.putSerializable(BookSearchFragment.KAKAO_BOOK_KEY, endPoint.kakaoBook)
+                    it.putSerializable(BookSearchFragment.KAKAO_BOOK_KEY, endPoint.bookAndBookMark)
+                    it.putBoolean(BookSearchFragment.BOOK_MARK_KEY, endPoint.isSelected)
                     fragment.arguments = it
                     setFragment(fragment)
                 }
-                is EndPoint.List -> {
+                is EndPoint.ReportList -> {
                     val fragment = ReportListFragment()
+                    setFragment(fragment)
+                }
+                is EndPoint.BookMarkList -> {
+                    val fragment = BookMarkListFragment()
                     setFragment(fragment)
                 }
                 is EndPoint.Error -> {

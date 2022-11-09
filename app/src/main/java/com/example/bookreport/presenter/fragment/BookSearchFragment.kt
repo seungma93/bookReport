@@ -1,4 +1,4 @@
-package com.example.bookreport.presenter
+package com.example.bookreport.presenter.fragment
 
 import android.os.Bundle
 import android.util.Log
@@ -10,8 +10,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.bookreport.BookMarkViewModel
-import com.example.bookreport.BookViewModel
+import com.example.bookreport.presenter.viewmodel.BookMarkViewModel
+import com.example.bookreport.presenter.viewmodel.BookViewModel
 import com.example.bookreport.data.entity.room.BookMark
 import com.example.bookreport.data.entity.KakaoBookMeta
 import com.example.bookreport.data.local.BookMarkLocalDataSourceImpl
@@ -21,6 +21,9 @@ import com.example.bookreport.databinding.FragmentBookSearchBinding
 import com.example.bookreport.domain.BookMarkUseCaseImpl
 import com.example.bookreport.domain.KakaoBookUseCaseImpl
 import com.example.bookreport.network.BookRetrofitImpl
+import com.example.bookreport.presenter.*
+import com.example.bookreport.presenter.viewmodel.BookMarkViewModelFactory
+import com.example.bookreport.presenter.viewmodel.BookViewModelFactory
 import com.example.bookreport.repository.BookMarkRepositoryImpl
 import com.example.bookreport.repository.KakaoBookRepositoryImpl
 
@@ -28,6 +31,7 @@ import com.example.bookreport.repository.KakaoBookRepositoryImpl
 class BookSearchFragment : Fragment() {
     companion object {
         const val KAKAO_BOOK_KEY = "KAKAO_BOOK_KEY"
+        const val BOOK_MARK_KEY = "BOOK_MARK_KEY"
     }
 
     private val viewModel: BookViewModel by lazy {
@@ -48,26 +52,29 @@ class BookSearchFragment : Fragment() {
         val factory = BookMarkViewModelFactory(bookMarkUseCaseImpl)
         ViewModelProvider(this, factory).get(BookMarkViewModel::class.java)
     }
-
     private lateinit var binding: FragmentBookSearchBinding
     private var adapter: BookListAdapter? = null
     private val onScrollListener: RecyclerView.OnScrollListener = OnScrollListener()
     private lateinit var bookMetaData: KakaoBookMeta
+    private lateinit var keyword: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         adapter = BookListAdapter({
+            BookAndBookMark, isSelected ->
             //Toast.makeText(requireContext(), "참가자 ${KakaoBook.title} 입니다.", Toast.LENGTH_SHORT).show()
-            val endPoint = EndPoint.Write(it.book)
+            val endPoint = EndPoint.Write(bookAndBookMark = BookAndBookMark , isSelected = isSelected )
             (requireActivity() as? BookReport)?.navigateFragment(endPoint)
         }, {
             bookMarkViewModel.saveBookMark(bookMark = BookMark(it.book.title))
             true
-        }, {
+        }
+        ) {
             bookMarkViewModel.deleteBookMark(bookMark = BookMark(it.book.title))
             true
         }
-        )
+        keyword = ""
+        Log.v("BookSearchFragment","onCreate")
     }
 
     override fun onCreateView(
@@ -76,19 +83,22 @@ class BookSearchFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentBookSearchBinding.inflate(inflater, container, false)
-        //bookMarkViewModel.loadBookMark()
         subscribe()
         initScrollListener()
+        refresh()
         binding.apply {
             bookList.adapter = adapter
             btnSearch.setOnClickListener {
-                val keyword = edit.text.toString()
+                keyword = edit.text.toString()
                 if (keyword.isNotEmpty()) {
-                    //bookMarkViewModel.loadBookMark()
                     viewModel.insertNewKey(keyword, 1)
                 }
+
+
+
             }
         }
+        Log.v("BookSearchFragment","onCreateView")
         return binding.root
     }
 
@@ -98,28 +108,34 @@ class BookSearchFragment : Fragment() {
         Log.v("pause", "pause")
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        Log.v("BookSearchFragment","onDestroyView")
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         adapter = null
         binding.bookList.removeOnScrollListener(onScrollListener)
+        Log.v("BookSearchFragment","onDestroy")
+    }
+
+    private fun refresh(){
+        viewModel.insertNewKey(keyword, 1)
+        Log.v("refresh", keyword)
     }
 
     // 뷰 모델 구독
     private fun subscribe() {
-
         viewModel.bookLiveData.observe(viewLifecycleOwner) {
             // 변경된 liveData 삽입
             if (it.meta != null) {
                 bookMetaData = it.meta
             }
-            Log.v("구독", "구독")
+            Log.v("subscribe", "구독")
             adapter?.setItems(it.entities)
-            //val page = (adapter!!.itemCount / 10) + 1
             Log.v("아답터아이템갯수", adapter!!.itemCount.toString())
-            //adapter!!.notifyItemRangeInserted((page - 1) * 10, 10)
-
         }
-
     }
 
     // 스크롤 리스너 -> 뷰의 마지막에 닿았을때 동작

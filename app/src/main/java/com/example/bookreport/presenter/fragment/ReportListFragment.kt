@@ -1,15 +1,20 @@
-package com.example.bookreport.presenter
+package com.example.bookreport.presenter.fragment
 
+import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.example.bookreport.R
 import com.example.bookreport.data.entity.room.Report
 import com.example.bookreport.data.local.ReportLocalDataSourceImpl
 import com.example.bookreport.databinding.FragmentReportListBinding
 import com.example.bookreport.domain.ReportUseCaseImpl
+import com.example.bookreport.presenter.*
+import com.example.bookreport.presenter.viewmodel.ReportViewModel
+import com.example.bookreport.presenter.viewmodel.ReportViewModelFactory
 import com.example.bookreport.repository.ReportRepositoryImpl
 
 class ReportListFragment : Fragment() {
@@ -22,6 +27,7 @@ class ReportListFragment : Fragment() {
         ViewModelProvider(this, factory).get(ReportViewModel::class.java)
     }
     private var adapter: ReportListAdapter? = null
+    private var isFabOpen = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,10 +47,17 @@ class ReportListFragment : Fragment() {
         binding.apply {
             reportListView.adapter = adapter
             btnFloating.setOnClickListener {
+                toggleFab()
+            }
+            btnFabSearch.setOnClickListener {
                 val endPoint = EndPoint.Search(0)
                 (requireActivity() as? BookReport)?.navigateFragment(endPoint)
                 btnFloating.hide()
             }
+            btnFabBookmark.setOnClickListener{
+
+            }
+
             return binding.root
         }
     }
@@ -61,5 +74,18 @@ class ReportListFragment : Fragment() {
             // 변경된 liveData 삽입
             adapter?.setItems(it.documents as MutableList<Report>)
         }
+    }
+
+    private fun toggleFab() {
+        if (isFabOpen) {
+            ObjectAnimator.ofFloat(binding.btnFabSearch, "translationY", 0f).apply { start() }
+            ObjectAnimator.ofFloat(binding.btnFabBookmark, "translationY", 0f).apply { start() }
+            binding.btnFloating.setImageResource(R.drawable.btn_menu)
+        }else{
+            ObjectAnimator.ofFloat(binding.btnFabSearch, "translationY", -200f).apply { start() }
+            ObjectAnimator.ofFloat(binding.btnFabBookmark, "translationY", -400f).apply { start() }
+            binding.btnFloating.setImageResource(R.drawable.btn_close)
+        }
+        isFabOpen = !isFabOpen
     }
 }

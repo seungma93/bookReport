@@ -1,11 +1,8 @@
-package com.example.bookreport
+package com.example.bookreport.presenter.viewmodel
 
 import androidx.lifecycle.*
 import com.example.bookreport.data.entity.BookListEntity
-import com.example.bookreport.data.entity.KakaoBook
-import com.example.bookreport.data.entity.KakaoBookResultEntity
 import com.example.bookreport.domain.KakaoBookUseCase
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 

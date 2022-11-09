@@ -1,8 +1,7 @@
-package com.example.bookreport.presenter
+package com.example.bookreport.presenter.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.bookreport.BookMarkViewModel
 import com.example.bookreport.domain.BookMarkUseCase
 
 
