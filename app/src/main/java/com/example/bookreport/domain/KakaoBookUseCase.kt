@@ -10,6 +10,7 @@ import kotlinx.coroutines.withContext
 
 interface KakaoBookUseCase {
     suspend fun searchBook(keyword: String, page: Int): BookListEntity
+    suspend fun refreshBookMark(entity: BookListEntity): BookListEntity
 }
 
 class KakaoBookUseCaseImpl(
@@ -26,11 +27,22 @@ class KakaoBookUseCaseImpl(
             }
             val booksMarks = bookMarksAsync.await()
             val booksResult = bookResultAsync.await()
+
             booksResult.documents.map { book ->
                 BookAndBookMark(book, booksMarks.find { it.title == book.title })
             }.let {
                 BookListEntity(it, booksResult.meta)
             }
+        }
+    }
+
+    override suspend fun refreshBookMark(entity: BookListEntity): BookListEntity {
+        val bookMark = bookMarkRepository.selectData().bookMarks
+
+        return entity.entities.map { bookAndBookMark ->
+            BookAndBookMark( bookAndBookMark.book, bookMark.find{ it.title == bookAndBookMark.book.title})
+        }.let{
+            BookListEntity(it, entity.meta)
         }
     }
 }

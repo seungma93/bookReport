@@ -31,7 +31,6 @@ import com.example.bookreport.repository.KakaoBookRepositoryImpl
 class BookSearchFragment : Fragment() {
     companion object {
         const val KAKAO_BOOK_KEY = "KAKAO_BOOK_KEY"
-        const val BOOK_MARK_KEY = "BOOK_MARK_KEY"
     }
 
     private val viewModel: BookViewModel by lazy {
@@ -43,14 +42,14 @@ class BookSearchFragment : Fragment() {
         val kakaoBookUseCaseImpl =
             KakaoBookUseCaseImpl(kakaoBookRepositoryImpl, bookMarkRepositoryImpl)
         val factory = BookViewModelFactory(kakaoBookUseCaseImpl)
-        ViewModelProvider(this, factory).get(BookViewModel::class.java)
+        ViewModelProvider(requireActivity(), factory).get(BookViewModel::class.java)
     }
     private val bookMarkViewModel: BookMarkViewModel by lazy {
         val bookMarkLocalDataSourceImpl = BookMarkLocalDataSourceImpl(requireContext())
         val bookMarkRepositoryImpl = BookMarkRepositoryImpl(bookMarkLocalDataSourceImpl)
         val bookMarkUseCaseImpl = BookMarkUseCaseImpl(bookMarkRepositoryImpl)
         val factory = BookMarkViewModelFactory(bookMarkUseCaseImpl)
-        ViewModelProvider(this, factory).get(BookMarkViewModel::class.java)
+        ViewModelProvider(requireActivity(), factory).get(BookMarkViewModel::class.java)
     }
     private lateinit var binding: FragmentBookSearchBinding
     private var adapter: BookListAdapter? = null
@@ -61,20 +60,25 @@ class BookSearchFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         adapter = BookListAdapter({
-            BookAndBookMark, isSelected ->
             //Toast.makeText(requireContext(), "참가자 ${KakaoBook.title} 입니다.", Toast.LENGTH_SHORT).show()
-            val endPoint = EndPoint.Write(bookAndBookMark = BookAndBookMark , isSelected = isSelected )
+            bookMarkViewModel.loadBookMark()
+            val endPoint =
+                EndPoint.ReportWrite(bookAndBookMark = it)
             (requireActivity() as? BookReport)?.navigateFragment(endPoint)
         }, {
             bookMarkViewModel.saveBookMark(bookMark = BookMark(it.book.title))
+            bookMarkViewModel.loadBookMark()
+            viewModel.refreshKey()
             true
         }
         ) {
             bookMarkViewModel.deleteBookMark(bookMark = BookMark(it.book.title))
+            bookMarkViewModel.loadBookMark()
+            viewModel.refreshKey()
             true
         }
         keyword = ""
-        Log.v("BookSearchFragment","onCreate")
+        Log.v("BookSearchFragment", "onCreate")
     }
 
     override fun onCreateView(
@@ -83,9 +87,15 @@ class BookSearchFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentBookSearchBinding.inflate(inflater, container, false)
+        Log.v("BookSearchFragment", "onCreateView")
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         subscribe()
         initScrollListener()
-        refresh()
+        //refresh()
         binding.apply {
             bookList.adapter = adapter
             btnSearch.setOnClickListener {
@@ -93,13 +103,8 @@ class BookSearchFragment : Fragment() {
                 if (keyword.isNotEmpty()) {
                     viewModel.insertNewKey(keyword, 1)
                 }
-
-
-
             }
         }
-        Log.v("BookSearchFragment","onCreateView")
-        return binding.root
     }
 
     override fun onPause() {
@@ -110,17 +115,17 @@ class BookSearchFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Log.v("BookSearchFragment","onDestroyView")
+        Log.v("BookSearchFragment", "onDestroyView")
     }
 
     override fun onDestroy() {
         super.onDestroy()
         adapter = null
         binding.bookList.removeOnScrollListener(onScrollListener)
-        Log.v("BookSearchFragment","onDestroy")
+        Log.v("BookSearchFragment", "onDestroy")
     }
 
-    private fun refresh(){
+    private fun refresh() {
         viewModel.insertNewKey(keyword, 1)
         Log.v("refresh", keyword)
     }

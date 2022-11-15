@@ -11,7 +11,7 @@ import com.example.bookreport.data.entity.KakaoBook
 import com.example.bookreport.databinding.BookListItemBinding
 
 class BookListAdapter(
-    private val itemClick: (BookAndBookMark, Boolean) -> Unit,
+    private val itemClick: (BookAndBookMark) -> Unit,
     private val bookMarkOn: (BookAndBookMark) -> Boolean,
     private val bookMarkOff: (BookAndBookMark) -> Boolean
 ) :
@@ -50,7 +50,7 @@ class BookListAdapter(
     // 뷰홀더 클래스
     class ViewHolder(
         private val binding: BookListItemBinding,
-        private val itemClick: (BookAndBookMark, Boolean) -> Unit,
+        private val itemClick: (BookAndBookMark) -> Unit,
         private val bookMarkOn: (BookAndBookMark) -> Boolean,
         private val bookMarkOff: (BookAndBookMark) -> Boolean
     ) : RecyclerView.ViewHolder(binding.root) {
@@ -59,7 +59,7 @@ class BookListAdapter(
         init {
             binding.root.setOnClickListener {
                 book?.let {
-                    itemClick(it, binding.btnBookmark.isSelected)
+                    itemClick(it)
                 }
             }
             binding.btnBookmark.setOnClickListener {

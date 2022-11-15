@@ -42,9 +42,9 @@ class BookMarkViewModel(private val useCase: BookMarkUseCase) : ViewModel() {
             //_bookMarkLiveData.value = useCase.loadBookMark()
             Log.v("불러오기", "viewModel")
 
-            val result = useCase.loadBookMark()
-            val newList = bookMarkLiveData.value?.bookMarks.orEmpty() + result.bookMarks
-            _bookMarkLiveData.value = BookMarkEntity(newList)
+            //val result = useCase.loadBookMark()
+            //val newList = bookMarkLiveData.value?.bookMarks.orEmpty() + result.bookMarks
+            _bookMarkLiveData.value = BookMarkEntity(useCase.loadBookMark().bookMarks)
         }
     }
 }

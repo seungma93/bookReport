@@ -50,12 +50,12 @@ class ReportListFragment : Fragment() {
                 toggleFab()
             }
             btnFabSearch.setOnClickListener {
-                val endPoint = EndPoint.Search(0)
+                val endPoint = EndPoint.BookSearch(0)
                 (requireActivity() as? BookReport)?.navigateFragment(endPoint)
-                btnFloating.hide()
             }
             btnFabBookmark.setOnClickListener{
-
+                val endPoint = EndPoint.BookMarkList(0)
+                (requireActivity() as? BookReport)?.navigateFragment(endPoint)
             }
 
             return binding.root

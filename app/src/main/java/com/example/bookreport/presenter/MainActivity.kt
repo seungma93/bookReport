@@ -15,8 +15,8 @@ import com.example.bookreport.presenter.fragment.ReportWriteFragment
 
 
 sealed class EndPoint {
-    data class Search(val sticky: Int) : EndPoint()
-    data class ReportWrite(val bookAndBookMark: BookAndBookMark, val isSelected: Boolean) : EndPoint()
+    data class BookSearch(val sticky: Int) : EndPoint()
+    data class ReportWrite(val bookAndBookMark: BookAndBookMark) : EndPoint()
     data class ReportList(val sticky: Int) : EndPoint()
     data class BookMarkList(val sticky: Int): EndPoint()
     object Error : EndPoint()
@@ -70,14 +70,13 @@ class MainActivity : AppCompatActivity(), BookReport {
 
         Bundle().let {
             when (endPoint) {
-                is EndPoint.Search -> {
+                is EndPoint.BookSearch -> {
                     val fragment = BookSearchFragment()
                     setFragment(fragment)
                 }
                 is EndPoint.ReportWrite -> {
                     val fragment = ReportWriteFragment()
                     it.putSerializable(BookSearchFragment.KAKAO_BOOK_KEY, endPoint.bookAndBookMark)
-                    it.putBoolean(BookSearchFragment.BOOK_MARK_KEY, endPoint.isSelected)
                     fragment.arguments = it
                     setFragment(fragment)
                 }

@@ -49,6 +49,15 @@ class BookViewModel(private val useCase: KakaoBookUseCase) : ViewModel() {
             }
         }
     }
+
+    fun refreshKey() {
+        viewModelScope.launch {
+            val old = bookLiveData.value
+            if (old != null) {
+                _bookLiveData.value = useCase.refreshBookMark(old)
+            }
+        }
+    }
 }
 
 
