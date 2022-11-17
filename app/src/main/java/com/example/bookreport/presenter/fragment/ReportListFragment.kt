@@ -31,7 +31,10 @@ class ReportListFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        adapter = ReportListAdapter()
+        adapter = ReportListAdapter({
+            val endPoint = EndPoint.ReportEdit(it)
+            (requireActivity() as? BookReport)?.navigateFragment(endPoint)
+        })
     }
 
     override fun onCreateView(

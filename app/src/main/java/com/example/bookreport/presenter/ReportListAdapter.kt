@@ -4,15 +4,18 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.bookreport.data.entity.BookAndBookMark
 import com.example.bookreport.data.entity.room.Report
 import com.example.bookreport.databinding.ReportListItemBinding
 
-class ReportListAdapter : RecyclerView.Adapter<ReportListAdapter.ViewHolder>() {
+class ReportListAdapter(
+    private val itemClick: (Report) -> Unit
+) : RecyclerView.Adapter<ReportListAdapter.ViewHolder>() {
     private val datalist = mutableListOf<Report>()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding =
             ReportListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHolder(binding)
+        return ViewHolder(binding, itemClick)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -32,9 +35,20 @@ class ReportListAdapter : RecyclerView.Adapter<ReportListAdapter.ViewHolder>() {
         notifyDataSetChanged()
     }
 
-    class ViewHolder(private val binding: ReportListItemBinding) :
+    class ViewHolder(private val binding: ReportListItemBinding,
+    private val itemClick: (Report) -> Unit) :
         RecyclerView.ViewHolder(binding.root) {
+        private var report: Report? = null
+
+        init {
+            binding.root.setOnClickListener{
+                report?.let{
+                    itemClick(it)
+                }
+            }
+        }
         fun bind(report: Report, position: Int) {
+            this.report = report
             binding.apply {
                 reportNo.text = report.no.toString()
                 bookTitle.text = report.title

@@ -7,11 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.bookreport.R
 import com.example.bookreport.data.entity.BookAndBookMark
+import com.example.bookreport.data.entity.room.Report
 import com.example.bookreport.databinding.ActivityMainBinding
-import com.example.bookreport.presenter.fragment.BookMarkListFragment
-import com.example.bookreport.presenter.fragment.BookSearchFragment
-import com.example.bookreport.presenter.fragment.ReportListFragment
-import com.example.bookreport.presenter.fragment.ReportWriteFragment
+import com.example.bookreport.presenter.fragment.*
 
 
 sealed class EndPoint {
@@ -19,6 +17,7 @@ sealed class EndPoint {
     data class ReportWrite(val bookAndBookMark: BookAndBookMark) : EndPoint()
     data class ReportList(val sticky: Int) : EndPoint()
     data class BookMarkList(val sticky: Int): EndPoint()
+    data class ReportEdit(val report: Report): EndPoint()
     object Error : EndPoint()
 }
 
@@ -86,6 +85,12 @@ class MainActivity : AppCompatActivity(), BookReport {
                 }
                 is EndPoint.BookMarkList -> {
                     val fragment = BookMarkListFragment()
+                    setFragment(fragment)
+                }
+                is EndPoint.ReportEdit -> {
+                    val fragment = ReportEditFragment()
+                    it.putSerializable(ReportEditFragment.REPORT_KEY, endPoint.report)
+                    fragment.arguments = it
                     setFragment(fragment)
                 }
                 is EndPoint.Error -> {
