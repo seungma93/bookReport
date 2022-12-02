@@ -6,6 +6,7 @@ import com.example.bookreport.data.entity.room.BookMark
 import com.example.bookreport.data.entity.BookMarkEntity
 import com.example.bookreport.domain.BookMarkUseCase
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -19,32 +20,24 @@ class BookMarkViewModel(private val useCase: BookMarkUseCase) : ViewModel() {
 
     private var saveJob: Job? = null
 
-    fun saveBookMark(bookMark: BookMark) {
-        // 코루틴 스코프 시작
-        if (saveJob?.isActive == true) return
-        saveJob = viewModelScope.launch {
-            // suspend 함수 호출
-            useCase.saveBookMark(bookMark)
-        }
+    suspend fun saveBookMark(bookMark: BookMark) = viewModelScope.launch {
+        // delay
+        useCase.saveBookMark(bookMark)
     }
 
-    fun deleteBookMark(bookMark: BookMark) {
-        // 코루틴 스코프 시작
-        viewModelScope.launch {
-            // suspend 함수 호출
+    suspend fun deleteBookMark(bookMark: BookMark) {
             useCase.deleteBookMark(bookMark)
-        }
     }
 
-    fun loadBookMark() {
+    suspend fun loadBookMark() {
         viewModelScope.launch {
             // suspend 함수 호출
-            //_bookMarkLiveData.value = useCase.loadBookMark()
+            _bookMarkLiveData.value = useCase.loadBookMark()
             Log.v("불러오기", "viewModel")
 
             //val result = useCase.loadBookMark()
             //val newList = bookMarkLiveData.value?.bookMarks.orEmpty() + result.bookMarks
-            _bookMarkLiveData.value = BookMarkEntity(useCase.loadBookMark().bookMarks)
+            //_bookMarkLiveData.value = BookMarkEntity(useCase.loadBookMark().bookMarks)
         }
     }
 }

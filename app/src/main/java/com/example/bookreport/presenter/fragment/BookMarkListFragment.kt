@@ -14,6 +14,10 @@ import com.example.bookreport.presenter.BookMarkListAdapter
 import com.example.bookreport.presenter.viewmodel.BookMarkViewModel
 import com.example.bookreport.presenter.viewmodel.BookMarkViewModelFactory
 import com.example.bookreport.repository.BookMarkRepositoryImpl
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.zip.Inflater
 
 class BookMarkListFragment: Fragment() {
@@ -43,9 +47,13 @@ class BookMarkListFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        CoroutineScope(Dispatchers.IO).launch {
+            viewModel.loadBookMark()
+            withContext(Dispatchers.Main){
+                subscribe()
+            }
+        }
         binding.bookmarkListView.adapter = adapter
-        viewModel.loadBookMark()
-        subscribe()
     }
 
     override fun onDestroyView() {

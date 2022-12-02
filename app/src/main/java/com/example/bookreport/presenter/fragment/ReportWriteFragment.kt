@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.bookreport.data.entity.BookAndBookMark
 import com.example.bookreport.data.entity.room.BookMark
@@ -24,6 +25,7 @@ import com.example.bookreport.presenter.viewmodel.*
 import com.example.bookreport.repository.BookMarkRepositoryImpl
 import com.example.bookreport.repository.KakaoBookRepositoryImpl
 import com.example.bookreport.repository.ReportRepositoryImpl
+import kotlinx.coroutines.*
 
 
 class ReportWriteFragment : Fragment() {
@@ -32,8 +34,8 @@ class ReportWriteFragment : Fragment() {
     private val viewModel: ReportViewModel by lazy {
         val reportLocalDataSourceImpl = ReportLocalDataSourceImpl(requireContext())
         val reportRepositoryImpl = ReportRepositoryImpl(reportLocalDataSourceImpl)
-        val saveReportUseCaseImpl = ReportUseCaseImpl(reportRepositoryImpl)
-        val factory = ReportViewModelFactory(saveReportUseCaseImpl)
+        val ReportUseCaseImpl = ReportUseCaseImpl(reportRepositoryImpl)
+        val factory = ReportViewModelFactory(ReportUseCaseImpl)
         ViewModelProvider(this, factory).get(ReportViewModel::class.java)
     }
     private val bookMarkViewModel: BookMarkViewModel by lazy {
@@ -67,27 +69,50 @@ class ReportWriteFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        subscribe()
+        CoroutineScope(Dispatchers.IO).launch{
+            bookMarkViewModel.loadBookMark()
+            withContext(Dispatchers.Main){
+
+                subscribe()
+            }
+        }
         binding.apply {
             bookTitle.text = kakaoBook.book.title
             bookContents.text = kakaoBook.book.contents
             Glide.with(requireContext()).load(kakaoBook.book.thumbnail).into(bookThumbnail)
 
             btnReportSubmit.setOnClickListener {
-                val report = Report(kakaoBook.book.title, kakaoBook.book.thumbnail!!, reportContext.text.toString())
-                viewModel.save(report)
-                (requireActivity() as? BookReport)?.navigateFragment(EndPoint.ReportList(0))
+                CoroutineScope(Dispatchers.IO).launch {
+                    val report = Report(
+                        kakaoBook.book,
+                        reportContext.text.toString()
+                    )
+                    viewModel.save(report)
+                    withContext(Dispatchers.Main) {
+                        (requireActivity() as? BookReport)?.navigateFragment(EndPoint.ReportList(0))
+                    }
+                }
             }
 
-            btnBookmark.setOnClickListener{
-                if(!(btnBookmark.isSelected)){
-                    bookMarkViewModel.saveBookMark(bookMark = BookMark(kakaoBook.book.title))
-                    bookListViewModel.refreshKey()
-                    btnBookmark.isSelected = true
-                }else{
-                    bookMarkViewModel.deleteBookMark(bookMark = BookMark(kakaoBook.book.title))
-                    bookListViewModel.refreshKey()
-                    btnBookmark.isSelected = false
+            btnBookmark.setOnClickListener {
+                if (!(btnBookmark.isSelected)) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        bookMarkViewModel.saveBookMark(bookMark = BookMark(kakaoBook.book.title))
+                        bookListViewModel.refreshKey()
+                        withContext(Dispatchers.Main){
+                            btnBookmark.isSelected = true
+                        }
+                    }
+
+                } else {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        bookMarkViewModel.deleteBookMark(bookMark = BookMark(kakaoBook.book.title))
+                        bookListViewModel.refreshKey()
+                        withContext(Dispatchers.IO){
+                            btnBookmark.isSelected = false
+                        }
+                    }
+
                 }
             }
         }
@@ -104,8 +129,9 @@ class ReportWriteFragment : Fragment() {
     }
 
     fun subscribe() {
-        bookMarkViewModel.bookMarkLiveData.observe(viewLifecycleOwner){
-            it.bookMarks.map{
+        bookMarkViewModel.bookMarkLiveData.observe(viewLifecycleOwner) {
+            binding.btnBookmark.isSelected = false
+            it.bookMarks.map {
                 binding.btnBookmark.isSelected = it.title == kakaoBook.book.title
             }
 

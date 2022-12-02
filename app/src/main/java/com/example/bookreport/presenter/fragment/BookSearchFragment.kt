@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bookreport.presenter.viewmodel.BookMarkViewModel
@@ -26,6 +27,9 @@ import com.example.bookreport.presenter.viewmodel.BookMarkViewModelFactory
 import com.example.bookreport.presenter.viewmodel.BookViewModelFactory
 import com.example.bookreport.repository.BookMarkRepositoryImpl
 import com.example.bookreport.repository.KakaoBookRepositoryImpl
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class BookSearchFragment : Fragment() {
@@ -61,21 +65,40 @@ class BookSearchFragment : Fragment() {
         super.onCreate(savedInstanceState)
         adapter = BookListAdapter({
             //Toast.makeText(requireContext(), "참가자 ${KakaoBook.title} 입니다.", Toast.LENGTH_SHORT).show()
-            bookMarkViewModel.loadBookMark()
+
+ //               bookMarkViewModel.loadBookMark()
             val endPoint =
                 EndPoint.ReportWrite(bookAndBookMark = it)
             (requireActivity() as? BookReport)?.navigateFragment(endPoint)
         }, {
-            bookMarkViewModel.saveBookMark(bookMark = BookMark(it.book.title))
-            bookMarkViewModel.loadBookMark()
-            viewModel.refreshKey()
-            true
+            val job = CoroutineScope(Dispatchers.IO).launch {
+                bookMarkViewModel.saveBookMark(bookMark = BookMark(it.book.title))
+                //bookMarkViewModel.loadBookMark()
+                viewModel.refreshKey()
+            }
+            when(job.isCancelled){
+                false -> {
+                    job.isCompleted
+                }
+                true -> {
+                    false
+                }
+            }
         }
         ) {
-            bookMarkViewModel.deleteBookMark(bookMark = BookMark(it.book.title))
-            bookMarkViewModel.loadBookMark()
-            viewModel.refreshKey()
-            true
+            val job = CoroutineScope(Dispatchers.IO).launch {
+                bookMarkViewModel.deleteBookMark(bookMark = BookMark(it.book.title))
+                //bookMarkViewModel.loadBookMark()
+                viewModel.refreshKey()
+            }
+            when(job.isCancelled){
+                false -> {
+                    job.isCompleted
+                }
+                true -> {
+                    false
+                }
+            }
         }
         keyword = ""
         Log.v("BookSearchFragment", "onCreate")
@@ -95,7 +118,6 @@ class BookSearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         subscribe()
         initScrollListener()
-        //refresh()
         binding.apply {
             bookList.adapter = adapter
             btnSearch.setOnClickListener {
@@ -125,11 +147,6 @@ class BookSearchFragment : Fragment() {
         Log.v("BookSearchFragment", "onDestroy")
     }
 
-    private fun refresh() {
-        viewModel.insertNewKey(keyword, 1)
-        Log.v("refresh", keyword)
-    }
-
     // 뷰 모델 구독
     private fun subscribe() {
         viewModel.bookLiveData.observe(viewLifecycleOwner) {
@@ -149,10 +166,8 @@ class BookSearchFragment : Fragment() {
     }
 
     private fun moreItems() {
-        //Log.v("키워드", "$keyword")
         val keyword = binding.edit.text.toString()
         val page = ((adapter?.itemCount)?.div(10) ?: 10) + 1
-        //val page = (adapter!!.itemCount/10) + 1
         Log.v("페이지", page.toString())
         viewModel.insertKey(keyword, page)
     }
@@ -163,23 +178,16 @@ class BookSearchFragment : Fragment() {
                 (recyclerView.layoutManager as LinearLayoutManager?)!!.findLastVisibleItemPosition()
             val itemCount = adapter?.itemCount?.minus(1) ?: 10
             super.onScrolled(recyclerView, dx, dy)
-            Log.v("initscroll", "스크롤")
 
-            Log.v(
-                "lastVisible",
-                (recyclerView.layoutManager as LinearLayoutManager?)!!.findLastVisibleItemPosition()
-                    .toString()
-            )
-            Log.v("itmeCount", itemCount.toString())
-            if (lastVisibleItemPosition == itemCount) {
-                Log.v("initscroll", "스크롤2")
-                Log.v("isend", "${bookMetaData.isEnd}")
+            if (lastVisibleItemPosition-1 == itemCount-1) {
                 // 다음 페이지가 있을때 동작
                 if (bookMetaData.isEnd == false) {
-                    Log.v("initscroll", "스크롤3")
                     moreItems()
                 } else {
                     Toast.makeText(requireContext(), "마지막 페이지 입니다.", Toast.LENGTH_SHORT).show()
+                    binding.bookList.post {
+                    adapter?.unsetLoading()
+                }
                 }
             }
         }

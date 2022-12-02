@@ -34,7 +34,10 @@ class MainActivity : AppCompatActivity(), BookReport {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val reportList = EndPoint.ReportList(0)
-        navigateFragment(reportList)
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.frame_layout, ReportListFragment())
+            .commit()
+
     }
 
 

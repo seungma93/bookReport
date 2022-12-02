@@ -3,6 +3,7 @@ package com.example.bookreport.presenter.viewmodel
 import androidx.lifecycle.*
 import com.example.bookreport.data.entity.BookListEntity
 import com.example.bookreport.domain.KakaoBookUseCase
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -29,6 +30,7 @@ class BookViewModel(private val useCase: KakaoBookUseCase) : ViewModel() {
                 }.onFailure {
                     _error.value = it
                 }
+                delay(1000)
                 isLoading = false
             }
         }
@@ -50,12 +52,10 @@ class BookViewModel(private val useCase: KakaoBookUseCase) : ViewModel() {
         }
     }
 
-    fun refreshKey() {
-        viewModelScope.launch {
-            val old = bookLiveData.value
-            if (old != null) {
-                _bookLiveData.value = useCase.refreshBookMark(old)
-            }
+    suspend fun refreshKey() = viewModelScope.launch {
+        val old = bookLiveData.value
+        if (old != null) {
+            _bookLiveData.value = useCase.refreshBookMark(old)
         }
     }
 }

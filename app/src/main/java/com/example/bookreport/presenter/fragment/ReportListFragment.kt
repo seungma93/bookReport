@@ -16,15 +16,19 @@ import com.example.bookreport.presenter.*
 import com.example.bookreport.presenter.viewmodel.ReportViewModel
 import com.example.bookreport.presenter.viewmodel.ReportViewModelFactory
 import com.example.bookreport.repository.ReportRepositoryImpl
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 class ReportListFragment : Fragment() {
     private lateinit var binding: FragmentReportListBinding
     private val viewModel: ReportViewModel by lazy {
         val reportLocalDataSourceImpl = ReportLocalDataSourceImpl(requireContext())
         val reportRepositoryImpl = ReportRepositoryImpl(reportLocalDataSourceImpl)
-        val saveReportUseCaseImpl = ReportUseCaseImpl(reportRepositoryImpl)
-        val factory = ReportViewModelFactory(saveReportUseCaseImpl)
-        ViewModelProvider(this, factory).get(ReportViewModel::class.java)
+        val ReportUseCaseImpl = ReportUseCaseImpl(reportRepositoryImpl)
+        val factory = ReportViewModelFactory(ReportUseCaseImpl)
+        ViewModelProvider(requireActivity(), factory).get(ReportViewModel::class.java)
     }
     private var adapter: ReportListAdapter? = null
     private var isFabOpen = false
@@ -43,10 +47,10 @@ class ReportListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentReportListBinding.inflate(inflater, container, false)
-
-        viewModel.load()
-        subscribe()
-
+        CoroutineScope(Dispatchers.Main).launch{
+            viewModel.load()
+            subscribe()
+        }
         binding.apply {
             reportListView.adapter = adapter
             btnFloating.setOnClickListener {

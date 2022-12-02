@@ -51,8 +51,8 @@ class ReportListAdapter(
             this.report = report
             binding.apply {
                 reportNo.text = report.no.toString()
-                bookTitle.text = report.title
-                Glide.with(itemView.context).load(report.thumbnail).into(bookThumbnail)
+                bookTitle.text = report.book.title
+                Glide.with(itemView.context).load(report.book.thumbnail).into(bookThumbnail)
                 reportContext.text = report.context
             }
         }

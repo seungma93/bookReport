@@ -1,5 +1,6 @@
 package com.example.bookreport.repository
 
+import androidx.room.PrimaryKey
 import com.example.bookreport.data.entity.room.Report
 import com.example.bookreport.data.entity.ReportEntity
 import com.example.bookreport.data.local.ReportLocalDataSource
@@ -9,6 +10,7 @@ import kotlinx.coroutines.withContext
 interface ReportRepository{
     suspend fun save(report: Report)
     suspend fun loadData(): ReportEntity
+    suspend fun update(report: Report)
 }
 
 class ReportRepositoryImpl(private val reportLocalDataSource: ReportLocalDataSource): ReportRepository {
@@ -22,5 +24,12 @@ class ReportRepositoryImpl(private val reportLocalDataSource: ReportLocalDataSou
             reportLocalDataSource.select()
         }
     }
+
+    override suspend fun update(report: Report) {
+        withContext(Dispatchers.IO){
+            reportLocalDataSource.update(report)
+        }
+    }
+
 
 }
