@@ -20,8 +20,7 @@ sealed class Item {
 
 class BookListAdapter(
     private val itemClick: (BookAndBookMark) -> Unit,
-    private val bookMarkOn: (BookAndBookMark) -> Boolean,
-    private val bookMarkOff: (BookAndBookMark) -> Boolean
+    private val bookMarkClick: (BookAndBookMark) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -37,7 +36,7 @@ class BookListAdapter(
             TYPE_ITEM -> {
                 val binding =
                     BookListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-                ViewHolder(binding, itemClick, bookMarkOn, bookMarkOff)
+                ViewHolder(binding, itemClick, bookMarkClick)
             }
             else -> {
                 Log.v("BookListAdapter", " onCreateViewHolder")
@@ -53,10 +52,17 @@ class BookListAdapter(
     // 뷰홀더에서 아이템 바인드
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is ViewHolder) {
-            val item = datalist[position] as Item.BookData
-            holder.bind(item.bookData!!, position)
+            val item = datalist[position] as? Item.BookData
+            kotlin.runCatching {
+                if (item?.bookData != null) holder.bind(
+                    item.bookData,
+                    position
+                ) else throw NullPointerException("에러")
+            }.onFailure {
+                it.printStackTrace()
+            }
+
         } else {
-            //val item = datalist[position] as Item.LoadingState
         }
     }
 
@@ -100,8 +106,7 @@ class BookListAdapter(
     class ViewHolder(
         private val binding: BookListItemBinding,
         private val itemClick: (BookAndBookMark) -> Unit,
-        private val bookMarkOn: (BookAndBookMark) -> Boolean,
-        private val bookMarkOff: (BookAndBookMark) -> Boolean
+        private val bookMarkClick: (BookAndBookMark) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
         private var book: BookAndBookMark? = null
 
@@ -113,31 +118,23 @@ class BookListAdapter(
             }
             binding.btnBookmark.setOnClickListener {
                 book?.let {
-                    when (binding.btnBookmark.isSelected) {
-                        false -> {
-                            if (bookMarkOn(it)) binding.btnBookmark.isSelected =
-                                true else Log.v("BookListAdapter", "오류발생")
-                        }
-                        true -> {
-                            if (bookMarkOff(it)) binding.btnBookmark.isSelected =
-                                false else Log.v("BookListAdapter", "오류발생")
-                        }
-                    }
+                    bookMarkClick(it)
                 }
             }
         }
-            // 아이템 바인드 펑션
-            fun bind(entity: BookAndBookMark, position: Int) = with(entity) {
-                this@ViewHolder.book = this
-                binding.apply {
-                    bookNo.text = position.toString()
-                    bookTitle.text = book.title
-                    bookContents.text = book.contents
-                    Glide.with(itemView.context).load(book.thumbnail).into(bookThumbnail)
-                    btnBookmark.isSelected = bookMark != null
-                    Log.v("아이템", position.toString())
-                }
+
+        // 아이템 바인드 펑션
+        fun bind(entity: BookAndBookMark, position: Int) = with(entity) {
+            this@ViewHolder.book = this
+            binding.apply {
+                bookNo.text = position.toString()
+                bookTitle.text = book.title
+                bookContents.text = book.contents
+                Glide.with(itemView.context).load(book.thumbnail).into(bookThumbnail)
+                btnBookmark.isSelected = bookMark != null
+                Log.v("아이템", position.toString())
             }
         }
     }
+}
 

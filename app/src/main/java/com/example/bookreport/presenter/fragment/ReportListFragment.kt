@@ -22,7 +22,8 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 class ReportListFragment : Fragment() {
-    private lateinit var binding: FragmentReportListBinding
+    private var _binding: FragmentReportListBinding? = null
+    private val binding get() = _binding!!
     private val viewModel: ReportViewModel by lazy {
         val reportLocalDataSourceImpl = ReportLocalDataSourceImpl(requireContext())
         val reportRepositoryImpl = ReportRepositoryImpl(reportLocalDataSourceImpl)
@@ -31,47 +32,48 @@ class ReportListFragment : Fragment() {
         ViewModelProvider(requireActivity(), factory).get(ReportViewModel::class.java)
     }
     private var adapter: ReportListAdapter? = null
-    private var isFabOpen = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        adapter = ReportListAdapter({
-            val endPoint = EndPoint.ReportEdit(it)
-            (requireActivity() as? BookReport)?.navigateFragment(endPoint)
-        })
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentReportListBinding.inflate(inflater, container, false)
-        CoroutineScope(Dispatchers.Main).launch{
+        _binding = FragmentReportListBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        adapter = ReportListAdapter {
+            val endPoint = EndPoint.ReportEdit(it)
+            (requireActivity() as? BookReport)?.navigateFragment(endPoint)
+        }
+        CoroutineScope(Dispatchers.Main).launch {
             viewModel.load()
             subscribe()
         }
         binding.apply {
             reportListView.adapter = adapter
+            var isFabOpen = false
             btnFloating.setOnClickListener {
-                toggleFab()
+                isFabOpen = toggleFab(isFabOpen)
             }
             btnFabSearch.setOnClickListener {
                 val endPoint = EndPoint.BookSearch(0)
                 (requireActivity() as? BookReport)?.navigateFragment(endPoint)
             }
-            btnFabBookmark.setOnClickListener{
+            btnFabBookmark.setOnClickListener {
                 val endPoint = EndPoint.BookMarkList(0)
                 (requireActivity() as? BookReport)?.navigateFragment(endPoint)
             }
-
-            return binding.root
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
         adapter = null
+        _binding = null
     }
 
     // 뷰 모델 구독
@@ -83,16 +85,17 @@ class ReportListFragment : Fragment() {
         }
     }
 
-    private fun toggleFab() {
+    private fun toggleFab(isFabOpen: Boolean): Boolean {
         if (isFabOpen) {
             ObjectAnimator.ofFloat(binding.btnFabSearch, "translationY", 0f).apply { start() }
             ObjectAnimator.ofFloat(binding.btnFabBookmark, "translationY", 0f).apply { start() }
             binding.btnFloating.setImageResource(R.drawable.btn_menu)
-        }else{
+            return false
+        } else {
             ObjectAnimator.ofFloat(binding.btnFabSearch, "translationY", -200f).apply { start() }
             ObjectAnimator.ofFloat(binding.btnFabBookmark, "translationY", -400f).apply { start() }
             binding.btnFloating.setImageResource(R.drawable.btn_close)
+            return true
         }
-        isFabOpen = !isFabOpen
     }
 }

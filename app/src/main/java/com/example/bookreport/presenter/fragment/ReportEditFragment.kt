@@ -35,7 +35,9 @@ class ReportEditFragment : Fragment() {
         const val REPORT_KEY = "REPORT_KEY"
     }
 
-    private lateinit var binding: FragmentReportEditBinding
+    private var _binding: FragmentReportEditBinding? = null
+    private val binding get() = _binding!!
+
     private val report get() = requireArguments().getSerializable(ReportEditFragment.REPORT_KEY) as Report
     private val viewModel: ReportViewModel by lazy {
         val reportLocalDataSourceImpl = ReportLocalDataSourceImpl(requireContext())
@@ -68,7 +70,7 @@ class ReportEditFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentReportEditBinding.inflate(inflater, container, false)
+        _binding = FragmentReportEditBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -81,9 +83,9 @@ class ReportEditFragment : Fragment() {
             Glide.with(requireContext()).load(report.book.thumbnail).into(bookThumbnail)
             reportContext.setText(report.context)
 
-            CoroutineScope(Dispatchers.IO).launch{
+            CoroutineScope(Dispatchers.IO).launch {
                 bookMarkViewModel.loadBookMark()
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     subscribe()
                 }
             }
@@ -94,19 +96,18 @@ class ReportEditFragment : Fragment() {
                     val report = Report(book = report.book, context = context, no = report.no)
                     viewModel.edit(report)
                     viewModel.load()
-                    withContext(Dispatchers.Main){
+                    withContext(Dispatchers.Main) {
                         val endPoint = EndPoint.ReportList(1)
                         (requireActivity() as? BookReport)?.navigateFragment(endPoint)
                     }
                 }
-
             }
             btnBookmark.setOnClickListener {
-                if (!(btnBookmark.isSelected)) {
+                if (btnBookmark.isSelected.not()) {
                     CoroutineScope(Dispatchers.IO).launch {
                         bookMarkViewModel.saveBookMark(bookMark = BookMark(report.book.title))
                         bookListViewModel.refreshKey()
-                        withContext(Dispatchers.Main){
+                        withContext(Dispatchers.Main) {
                             btnBookmark.isSelected = true
                         }
                     }
@@ -114,7 +115,7 @@ class ReportEditFragment : Fragment() {
                     CoroutineScope(Dispatchers.IO).launch {
                         bookMarkViewModel.deleteBookMark(bookMark = BookMark(report.book.title))
                         bookListViewModel.refreshKey()
-                        withContext(Dispatchers.Main){
+                        withContext(Dispatchers.Main) {
                             btnBookmark.isSelected = false
                         }
                     }
@@ -123,11 +124,16 @@ class ReportEditFragment : Fragment() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     fun subscribe() {
         bookMarkViewModel.bookMarkLiveData.observe(viewLifecycleOwner) {
             binding.btnBookmark.isSelected = false
             it.bookMarks.map {
-                if(it.title == report.book.title){
+                if (it.title == report.book.title) {
                     binding.btnBookmark.isSelected = true
                 }
             }

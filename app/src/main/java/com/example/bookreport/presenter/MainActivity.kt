@@ -26,20 +26,19 @@ interface BookReport {
 }
 
 class MainActivity : AppCompatActivity(), BookReport {
-    private lateinit var binding: ActivityMainBinding
+    private var _binding: ActivityMainBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.v("생명주기", "onCreate")
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val reportList = EndPoint.ReportList(0)
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.frame_layout, ReportListFragment())
             .commit()
 
     }
-
 
     override fun onResume() {
         super.onResume()
@@ -59,6 +58,11 @@ class MainActivity : AppCompatActivity(), BookReport {
     override fun onPause() {
         super.onPause()
         Log.v("생명주기", "onPause")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 
     private fun setFragment(fragment: Fragment) {

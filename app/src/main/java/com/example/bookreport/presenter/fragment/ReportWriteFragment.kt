@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.bookreport.data.entity.BookAndBookMark
 import com.example.bookreport.data.entity.room.BookMark
@@ -29,7 +28,8 @@ import kotlinx.coroutines.*
 
 
 class ReportWriteFragment : Fragment() {
-    private lateinit var binding: FragmentReportWriteBinding
+    private var _binding: FragmentReportWriteBinding? = null
+    private val binding get() = _binding!!
     private val kakaoBook get() = requireArguments().getSerializable(BookSearchFragment.KAKAO_BOOK_KEY) as BookAndBookMark
     private val viewModel: ReportViewModel by lazy {
         val reportLocalDataSourceImpl = ReportLocalDataSourceImpl(requireContext())
@@ -57,13 +57,12 @@ class ReportWriteFragment : Fragment() {
         ViewModelProvider(requireActivity(), factory).get(BookViewModel::class.java)
     }
 
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentReportWriteBinding.inflate(inflater, container, false)
+        _binding = FragmentReportWriteBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -72,7 +71,6 @@ class ReportWriteFragment : Fragment() {
         CoroutineScope(Dispatchers.IO).launch{
             bookMarkViewModel.loadBookMark()
             withContext(Dispatchers.Main){
-
                 subscribe()
             }
         }
@@ -82,16 +80,18 @@ class ReportWriteFragment : Fragment() {
             Glide.with(requireContext()).load(kakaoBook.book.thumbnail).into(bookThumbnail)
 
             btnReportSubmit.setOnClickListener {
+                val report = Report(
+                    kakaoBook.book,
+                    reportContext.text.toString()
+                )
+
                 CoroutineScope(Dispatchers.IO).launch {
-                    val report = Report(
-                        kakaoBook.book,
-                        reportContext.text.toString()
-                    )
                     viewModel.save(report)
                     withContext(Dispatchers.Main) {
                         (requireActivity() as? BookReport)?.navigateFragment(EndPoint.ReportList(0))
                     }
                 }
+                true
             }
 
             btnBookmark.setOnClickListener {
@@ -112,7 +112,6 @@ class ReportWriteFragment : Fragment() {
                             btnBookmark.isSelected = false
                         }
                     }
-
                 }
             }
         }
@@ -120,12 +119,8 @@ class ReportWriteFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        _binding = null
         Log.v("ReportWriteFrgment", "onDestroyView")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.v("ReportWriteFrgment", "onDestroy")
     }
 
     fun subscribe() {

@@ -17,6 +17,7 @@ import com.example.bookreport.data.entity.room.BookMark
 import com.example.bookreport.data.entity.KakaoBookMeta
 import com.example.bookreport.data.local.BookMarkLocalDataSourceImpl
 import com.example.bookreport.data.remote.KakaoRemoteDataSource
+import com.example.bookreport.databinding.BookListItemBinding
 
 import com.example.bookreport.databinding.FragmentBookSearchBinding
 import com.example.bookreport.domain.BookMarkUseCaseImpl
@@ -29,6 +30,7 @@ import com.example.bookreport.repository.BookMarkRepositoryImpl
 import com.example.bookreport.repository.KakaoBookRepositoryImpl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonDisposableHandle.parent
 import kotlinx.coroutines.launch
 
 
@@ -55,67 +57,51 @@ class BookSearchFragment : Fragment() {
         val factory = BookMarkViewModelFactory(bookMarkUseCaseImpl)
         ViewModelProvider(requireActivity(), factory).get(BookMarkViewModel::class.java)
     }
-    private lateinit var binding: FragmentBookSearchBinding
+    private var _binding: FragmentBookSearchBinding? = null
+    private val binding get() = _binding!!
+    private var _bookListItemBinding: BookListItemBinding? = null
+    private val bookListItemBinding get() = _bookListItemBinding!!
     private var adapter: BookListAdapter? = null
     private val onScrollListener: RecyclerView.OnScrollListener = OnScrollListener()
     private lateinit var bookMetaData: KakaoBookMeta
-    private lateinit var keyword: String
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        adapter = BookListAdapter({
-            //Toast.makeText(requireContext(), "참가자 ${KakaoBook.title} 입니다.", Toast.LENGTH_SHORT).show()
-
- //               bookMarkViewModel.loadBookMark()
-            val endPoint =
-                EndPoint.ReportWrite(bookAndBookMark = it)
-            (requireActivity() as? BookReport)?.navigateFragment(endPoint)
-        }, {
-            val job = CoroutineScope(Dispatchers.IO).launch {
-                bookMarkViewModel.saveBookMark(bookMark = BookMark(it.book.title))
-                //bookMarkViewModel.loadBookMark()
-                viewModel.refreshKey()
-            }
-            when(job.isCancelled){
-                false -> {
-                    job.isCompleted
-                }
-                true -> {
-                    false
-                }
-            }
-        }
-        ) {
-            val job = CoroutineScope(Dispatchers.IO).launch {
-                bookMarkViewModel.deleteBookMark(bookMark = BookMark(it.book.title))
-                //bookMarkViewModel.loadBookMark()
-                viewModel.refreshKey()
-            }
-            when(job.isCancelled){
-                false -> {
-                    job.isCompleted
-                }
-                true -> {
-                    false
-                }
-            }
-        }
-        keyword = ""
-        Log.v("BookSearchFragment", "onCreate")
-    }
+    private var keyword: String = ""
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentBookSearchBinding.inflate(inflater, container, false)
+        _binding = FragmentBookSearchBinding.inflate(inflater, container, false)
+        _bookListItemBinding = BookListItemBinding.inflate(inflater, container, false)
         Log.v("BookSearchFragment", "onCreateView")
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        adapter = BookListAdapter({
+            //Toast.makeText(requireContext(), "참가자 ${KakaoBook.title} 입니다.", Toast.LENGTH_SHORT).show()
+            val endPoint =
+                EndPoint.ReportWrite(bookAndBookMark = it)
+            (requireActivity() as? BookReport)?.navigateFragment(endPoint)
+        }, {
+            when (bookListItemBinding.btnBookmark.isSelected) {
+                true -> {
+                    lifecycleScope.launch {
+                        bookMarkViewModel.deleteBookMark(bookMark = BookMark(it.book.title))
+                        viewModel.refreshKey()
+                        bookListItemBinding.btnBookmark.isSelected = false
+                    }
+                }
+                false -> {
+                    lifecycleScope.launch {
+                        bookMarkViewModel.saveBookMark(bookMark = BookMark(it.book.title))
+                        viewModel.refreshKey()
+                        bookListItemBinding.btnBookmark.isSelected = true
+                    }
+                }
+            }
+        })
         subscribe()
         initScrollListener()
         binding.apply {
@@ -131,19 +117,20 @@ class BookSearchFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        //adapter.resetItem()
-        Log.v("pause", "pause")
+        Log.v("BookSearchFragment", "pause")
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        adapter = null
+        binding.bookList.removeOnScrollListener(onScrollListener)
+        _binding = null
+        _bookListItemBinding = null
         Log.v("BookSearchFragment", "onDestroyView")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        adapter = null
-        binding.bookList.removeOnScrollListener(onScrollListener)
         Log.v("BookSearchFragment", "onDestroy")
     }
 
@@ -174,20 +161,19 @@ class BookSearchFragment : Fragment() {
 
     private inner class OnScrollListener : RecyclerView.OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            super.onScrolled(recyclerView, dx, dy)
             val lastVisibleItemPosition =
                 (recyclerView.layoutManager as LinearLayoutManager?)!!.findLastVisibleItemPosition()
-            val itemCount = adapter?.itemCount?.minus(1) ?: 10
-            super.onScrolled(recyclerView, dx, dy)
+            val itemCount = (adapter?.itemCount?.minus(1) ?: 10)
 
-            if (lastVisibleItemPosition-1 == itemCount-1) {
-                // 다음 페이지가 있을때 동작
+            if (itemCount == lastVisibleItemPosition) {
                 if (bookMetaData.isEnd == false) {
                     moreItems()
                 } else {
                     Toast.makeText(requireContext(), "마지막 페이지 입니다.", Toast.LENGTH_SHORT).show()
                     binding.bookList.post {
-                    adapter?.unsetLoading()
-                }
+                        adapter?.unsetLoading()
+                    }
                 }
             }
         }
