@@ -1,5 +1,6 @@
 package com.example.bookreport.presenter.fragment
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -7,56 +8,37 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.bookreport.presenter.viewmodel.BookMarkViewModel
-import com.example.bookreport.presenter.viewmodel.BookViewModel
-import com.example.bookreport.data.entity.room.BookMark
 import com.example.bookreport.data.entity.KakaoBookMeta
+import com.example.bookreport.data.entity.room.BookMark
 import com.example.bookreport.data.local.BookMarkLocalDataSourceImpl
 import com.example.bookreport.data.remote.KakaoRemoteDataSource
 import com.example.bookreport.databinding.BookListItemBinding
-
 import com.example.bookreport.databinding.FragmentBookSearchBinding
-import com.example.bookreport.domain.BookMarkUseCaseImpl
+import com.example.bookreport.di.DaggerBookListComponent
+import com.example.bookreport.di.DaggerBookMarkComponent
 import com.example.bookreport.domain.KakaoBookUseCaseImpl
 import com.example.bookreport.network.BookRetrofitImpl
-import com.example.bookreport.presenter.*
-import com.example.bookreport.presenter.viewmodel.BookMarkViewModelFactory
+import com.example.bookreport.presenter.BookListAdapter
+import com.example.bookreport.presenter.BookReport
+import com.example.bookreport.presenter.EndPoint
+import com.example.bookreport.presenter.viewmodel.BookMarkViewModel
+import com.example.bookreport.presenter.viewmodel.BookViewModel
 import com.example.bookreport.presenter.viewmodel.BookViewModelFactory
 import com.example.bookreport.repository.BookMarkRepositoryImpl
 import com.example.bookreport.repository.KakaoBookRepositoryImpl
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonDisposableHandle.parent
 import kotlinx.coroutines.launch
-
+import javax.inject.Inject
 
 class BookSearchFragment : Fragment() {
     companion object {
         const val KAKAO_BOOK_KEY = "KAKAO_BOOK_KEY"
     }
 
-    private val viewModel: BookViewModel by lazy {
-        val bookMarkLocalDataSourceImpl = BookMarkLocalDataSourceImpl(requireContext())
-        val bookMarkRepositoryImpl = BookMarkRepositoryImpl(bookMarkLocalDataSourceImpl)
-        val kakaoRemoteDataSourceImpl =
-            BookRetrofitImpl.getRetrofit().create(KakaoRemoteDataSource::class.java)
-        val kakaoBookRepositoryImpl = KakaoBookRepositoryImpl(kakaoRemoteDataSourceImpl)
-        val kakaoBookUseCaseImpl =
-            KakaoBookUseCaseImpl(kakaoBookRepositoryImpl, bookMarkRepositoryImpl)
-        val factory = BookViewModelFactory(kakaoBookUseCaseImpl)
-        ViewModelProvider(requireActivity(), factory).get(BookViewModel::class.java)
-    }
-    private val bookMarkViewModel: BookMarkViewModel by lazy {
-        val bookMarkLocalDataSourceImpl = BookMarkLocalDataSourceImpl(requireContext())
-        val bookMarkRepositoryImpl = BookMarkRepositoryImpl(bookMarkLocalDataSourceImpl)
-        val bookMarkUseCaseImpl = BookMarkUseCaseImpl(bookMarkRepositoryImpl)
-        val factory = BookMarkViewModelFactory(bookMarkUseCaseImpl)
-        ViewModelProvider(requireActivity(), factory).get(BookMarkViewModel::class.java)
-    }
     private var _binding: FragmentBookSearchBinding? = null
     private val binding get() = _binding!!
     private var _bookListItemBinding: BookListItemBinding? = null
@@ -65,6 +47,19 @@ class BookSearchFragment : Fragment() {
     private val onScrollListener: RecyclerView.OnScrollListener = OnScrollListener()
     private lateinit var bookMetaData: KakaoBookMeta
     private var keyword: String = ""
+
+    @Inject
+    lateinit var bookListViewModelFactory: ViewModelProvider.Factory
+    private val viewModel: BookViewModel by activityViewModels { bookListViewModelFactory }
+    @Inject
+    lateinit var bookMarkViewModelFactory: ViewModelProvider.Factory
+    private val bookMarkViewModel: BookMarkViewModel by activityViewModels { bookMarkViewModelFactory }
+
+    override fun onAttach(context: Context) {
+        DaggerBookMarkComponent.factory().create(context).inject(this)
+        DaggerBookListComponent.factory().create(context).inject(this)
+        super.onAttach(context)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,

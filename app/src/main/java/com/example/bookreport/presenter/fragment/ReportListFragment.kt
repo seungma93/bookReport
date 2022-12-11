@@ -1,16 +1,19 @@
 package com.example.bookreport.presenter.fragment
 
 import android.animation.ObjectAnimator
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import com.example.bookreport.R
 import com.example.bookreport.data.entity.room.Report
 import com.example.bookreport.data.local.ReportLocalDataSourceImpl
 import com.example.bookreport.databinding.FragmentReportListBinding
+import com.example.bookreport.di.DaggerReportComponent
 import com.example.bookreport.domain.ReportUseCaseImpl
 import com.example.bookreport.presenter.*
 import com.example.bookreport.presenter.viewmodel.ReportViewModel
@@ -20,19 +23,20 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class ReportListFragment : Fragment() {
     private var _binding: FragmentReportListBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: ReportViewModel by lazy {
-        val reportLocalDataSourceImpl = ReportLocalDataSourceImpl(requireContext())
-        val reportRepositoryImpl = ReportRepositoryImpl(reportLocalDataSourceImpl)
-        val ReportUseCaseImpl = ReportUseCaseImpl(reportRepositoryImpl)
-        val factory = ReportViewModelFactory(ReportUseCaseImpl)
-        ViewModelProvider(requireActivity(), factory).get(ReportViewModel::class.java)
-    }
     private var adapter: ReportListAdapter? = null
+    @Inject
+    lateinit var reportViewModelFactory: ViewModelProvider.Factory
+    private val viewModel: ReportViewModel by activityViewModels { reportViewModelFactory }
 
+    override fun onAttach(context: Context) {
+        DaggerReportComponent.factory().create(context).inject(this)
+        super.onAttach(context)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,

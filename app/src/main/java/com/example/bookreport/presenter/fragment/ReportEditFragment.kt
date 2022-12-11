@@ -1,11 +1,13 @@
 package com.example.bookreport.presenter.fragment
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -17,6 +19,9 @@ import com.example.bookreport.data.local.ReportLocalDataSourceImpl
 import com.example.bookreport.data.remote.KakaoRemoteDataSource
 import com.example.bookreport.databinding.FragmentBookSearchBinding
 import com.example.bookreport.databinding.FragmentReportEditBinding
+import com.example.bookreport.di.DaggerBookListComponent
+import com.example.bookreport.di.DaggerBookMarkComponent
+import com.example.bookreport.di.DaggerReportComponent
 import com.example.bookreport.domain.BookMarkUseCaseImpl
 import com.example.bookreport.domain.KakaoBookUseCaseImpl
 import com.example.bookreport.domain.ReportUseCaseImpl
@@ -28,6 +33,7 @@ import com.example.bookreport.repository.BookMarkRepositoryImpl
 import com.example.bookreport.repository.KakaoBookRepositoryImpl
 import com.example.bookreport.repository.ReportRepositoryImpl
 import kotlinx.coroutines.*
+import javax.inject.Inject
 import kotlin.coroutines.coroutineContext
 
 class ReportEditFragment : Fragment() {
@@ -37,32 +43,23 @@ class ReportEditFragment : Fragment() {
 
     private var _binding: FragmentReportEditBinding? = null
     private val binding get() = _binding!!
-
     private val report get() = requireArguments().getSerializable(ReportEditFragment.REPORT_KEY) as Report
-    private val viewModel: ReportViewModel by lazy {
-        val reportLocalDataSourceImpl = ReportLocalDataSourceImpl(requireContext())
-        val reportRepositoryImpl = ReportRepositoryImpl(reportLocalDataSourceImpl)
-        val ReportUseCaseImpl = ReportUseCaseImpl(reportRepositoryImpl)
-        val factory = ReportViewModelFactory(ReportUseCaseImpl)
-        ViewModelProvider(requireActivity(), factory).get(ReportViewModel::class.java)
-    }
-    private val bookMarkViewModel: BookMarkViewModel by lazy {
-        val bookMarkLocalDataSourceImpl = BookMarkLocalDataSourceImpl(requireContext())
-        val bookMarkRepositoryImpl = BookMarkRepositoryImpl(bookMarkLocalDataSourceImpl)
-        val bookMarkUseCaseImpl = BookMarkUseCaseImpl(bookMarkRepositoryImpl)
-        val factory = BookMarkViewModelFactory(bookMarkUseCaseImpl)
-        ViewModelProvider(requireActivity(), factory).get(BookMarkViewModel::class.java)
-    }
-    private val bookListViewModel: BookViewModel by lazy {
-        val bookMarkLocalDataSourceImpl = BookMarkLocalDataSourceImpl(requireContext())
-        val bookMarkRepositoryImpl = BookMarkRepositoryImpl(bookMarkLocalDataSourceImpl)
-        val kakaoRemoteDataSourceImpl =
-            BookRetrofitImpl.getRetrofit().create(KakaoRemoteDataSource::class.java)
-        val kakaoBookRepositoryImpl = KakaoBookRepositoryImpl(kakaoRemoteDataSourceImpl)
-        val kakaoBookUseCaseImpl =
-            KakaoBookUseCaseImpl(kakaoBookRepositoryImpl, bookMarkRepositoryImpl)
-        val factory = BookViewModelFactory(kakaoBookUseCaseImpl)
-        ViewModelProvider(requireActivity(), factory).get(BookViewModel::class.java)
+
+    @Inject
+    lateinit var reportViewModelFactory: ViewModelProvider.Factory
+    private val viewModel: ReportViewModel by activityViewModels { reportViewModelFactory }
+    @Inject
+    lateinit var bookMarkViewModelFactory: ViewModelProvider.Factory
+    private val bookMarkViewModel: BookMarkViewModel by activityViewModels { bookMarkViewModelFactory }
+    @Inject
+    lateinit var bookListViewModelFactory: ViewModelProvider.Factory
+    private val bookListViewModel: BookViewModel by activityViewModels { bookListViewModelFactory }
+
+    override fun onAttach(context: Context) {
+        DaggerReportComponent.factory().create(context).inject(this)
+        DaggerBookListComponent.factory().create(context).inject(this)
+        DaggerBookMarkComponent.factory().create(context).inject(this)
+        super.onAttach(context)
     }
 
     override fun onCreateView(
