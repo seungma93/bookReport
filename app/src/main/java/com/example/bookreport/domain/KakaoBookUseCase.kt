@@ -7,13 +7,14 @@ import com.example.bookreport.repository.KakaoBookRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 interface KakaoBookUseCase {
     suspend fun searchBook(keyword: String, page: Int): BookListEntity
     suspend fun refreshBookMark(entity: BookListEntity): BookListEntity
 }
 
-class KakaoBookUseCaseImpl(
+class KakaoBookUseCaseImpl @Inject constructor(
     private val kakaoBookRepository: KakaoBookRepository,
     private val bookMarkRepository: BookMarkRepository
 ) : KakaoBookUseCase {

@@ -7,6 +7,10 @@ import com.example.bookreport.data.local.BookMarkLocalDataSource
 import com.example.bookreport.data.local.BookMarkLocalDataSourceImpl
 import com.example.bookreport.domain.BookMarkUseCase
 import com.example.bookreport.domain.BookMarkUseCaseImpl
+import com.example.bookreport.presenter.fragment.BookMarkListFragment
+import com.example.bookreport.presenter.fragment.BookSearchFragment
+import com.example.bookreport.presenter.fragment.ReportEditFragment
+import com.example.bookreport.presenter.fragment.ReportWriteFragment
 import com.example.bookreport.presenter.viewmodel.BookMarkViewModelFactory
 import com.example.bookreport.repository.BookMarkRepository
 import com.example.bookreport.repository.BookMarkRepositoryImpl
@@ -24,20 +28,22 @@ import dagger.Provides
     ]
 )
 interface BookMarkComponent {
-    fun inject(fragment: Fragment)
+    fun inject(fragment: BookMarkListFragment)
+    fun inject(fragment: BookSearchFragment)
+    fun inject(fragment: ReportEditFragment)
+    fun inject(fragment: ReportWriteFragment)
 
     @Component.Factory
     interface Factory {
         fun create(@BindsInstance context: Context): BookMarkComponent
     }
-
 }
 
 @Module
 class BookMarkViewModelModule {
     @Provides
-    fun providesBookMarkViewModel(usecase: BookMarkUseCase): ViewModelProvider.Factory {
-        return BookMarkViewModelFactory(usecase)
+    fun providesBookMarkViewModel(useCase: BookMarkUseCase): ViewModelProvider.Factory {
+        return BookMarkViewModelFactory(useCase)
     }
 }
 

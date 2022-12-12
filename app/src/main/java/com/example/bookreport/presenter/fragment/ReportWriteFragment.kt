@@ -14,22 +14,12 @@ import com.bumptech.glide.Glide
 import com.example.bookreport.data.entity.BookAndBookMark
 import com.example.bookreport.data.entity.room.BookMark
 import com.example.bookreport.data.entity.room.Report
-import com.example.bookreport.data.local.BookMarkLocalDataSourceImpl
-import com.example.bookreport.data.local.ReportLocalDataSourceImpl
-import com.example.bookreport.data.remote.KakaoRemoteDataSource
 import com.example.bookreport.databinding.FragmentReportWriteBinding
 import com.example.bookreport.di.DaggerBookListComponent
 import com.example.bookreport.di.DaggerBookMarkComponent
 import com.example.bookreport.di.DaggerReportComponent
-import com.example.bookreport.domain.BookMarkUseCaseImpl
-import com.example.bookreport.domain.KakaoBookUseCaseImpl
-import com.example.bookreport.domain.ReportUseCaseImpl
-import com.example.bookreport.network.BookRetrofitImpl
 import com.example.bookreport.presenter.*
 import com.example.bookreport.presenter.viewmodel.*
-import com.example.bookreport.repository.BookMarkRepositoryImpl
-import com.example.bookreport.repository.KakaoBookRepositoryImpl
-import com.example.bookreport.repository.ReportRepositoryImpl
 import kotlinx.coroutines.*
 import javax.inject.Inject
 

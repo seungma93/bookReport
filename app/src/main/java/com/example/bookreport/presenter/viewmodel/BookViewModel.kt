@@ -5,9 +5,10 @@ import com.example.bookreport.data.entity.BookListEntity
 import com.example.bookreport.domain.KakaoBookUseCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
-class BookViewModel(private val useCase: KakaoBookUseCase) : ViewModel() {
+class BookViewModel @Inject constructor(private val useCase: KakaoBookUseCase) : ViewModel() {
     private val _bookLiveData = MutableLiveData<BookListEntity>()
     val bookLiveData: LiveData<BookListEntity>
         get() = _bookLiveData

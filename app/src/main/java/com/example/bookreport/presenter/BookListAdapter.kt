@@ -20,7 +20,7 @@ sealed class Item {
 
 class BookListAdapter(
     private val itemClick: (BookAndBookMark) -> Unit,
-    private val bookMarkClick: (BookAndBookMark) -> Unit
+    private val bookMarkClick: (BookAndBookMark) -> Boolean
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -106,7 +106,7 @@ class BookListAdapter(
     class ViewHolder(
         private val binding: BookListItemBinding,
         private val itemClick: (BookAndBookMark) -> Unit,
-        private val bookMarkClick: (BookAndBookMark) -> Unit
+        private val bookMarkClick: (BookAndBookMark) -> Boolean
     ) : RecyclerView.ViewHolder(binding.root) {
         private var book: BookAndBookMark? = null
 
@@ -118,7 +118,10 @@ class BookListAdapter(
             }
             binding.btnBookmark.setOnClickListener {
                 book?.let {
-                    bookMarkClick(it)
+                    when(bookMarkClick(it)){
+                        true -> binding.btnBookmark.isSelected = true
+                        false -> binding.btnBookmark.isSelected = false
+                    }
                 }
             }
         }

@@ -2,39 +2,24 @@ package com.example.bookreport.presenter.fragment
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
-import com.example.bookreport.data.entity.BookAndBookMark
 import com.example.bookreport.data.entity.room.BookMark
 import com.example.bookreport.data.entity.room.Report
-import com.example.bookreport.data.local.BookMarkLocalDataSourceImpl
-import com.example.bookreport.data.local.ReportLocalDataSourceImpl
-import com.example.bookreport.data.remote.KakaoRemoteDataSource
-import com.example.bookreport.databinding.FragmentBookSearchBinding
 import com.example.bookreport.databinding.FragmentReportEditBinding
 import com.example.bookreport.di.DaggerBookListComponent
 import com.example.bookreport.di.DaggerBookMarkComponent
 import com.example.bookreport.di.DaggerReportComponent
-import com.example.bookreport.domain.BookMarkUseCaseImpl
-import com.example.bookreport.domain.KakaoBookUseCaseImpl
-import com.example.bookreport.domain.ReportUseCaseImpl
-import com.example.bookreport.network.BookRetrofitImpl
 import com.example.bookreport.presenter.BookReport
 import com.example.bookreport.presenter.EndPoint
 import com.example.bookreport.presenter.viewmodel.*
-import com.example.bookreport.repository.BookMarkRepositoryImpl
-import com.example.bookreport.repository.KakaoBookRepositoryImpl
-import com.example.bookreport.repository.ReportRepositoryImpl
 import kotlinx.coroutines.*
 import javax.inject.Inject
-import kotlin.coroutines.coroutineContext
 
 class ReportEditFragment : Fragment() {
     companion object {

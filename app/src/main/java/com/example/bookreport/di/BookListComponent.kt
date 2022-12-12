@@ -10,7 +10,11 @@ import com.example.bookreport.data.local.ReportLocalDataSourceImpl
 import com.example.bookreport.data.remote.KakaoRemoteDataSource
 import com.example.bookreport.domain.*
 import com.example.bookreport.network.BookRetrofitImpl
+import com.example.bookreport.presenter.fragment.BookSearchFragment
+import com.example.bookreport.presenter.fragment.ReportEditFragment
+import com.example.bookreport.presenter.fragment.ReportWriteFragment
 import com.example.bookreport.presenter.viewmodel.BookMarkViewModelFactory
+import com.example.bookreport.presenter.viewmodel.BookViewModelFactory
 import com.example.bookreport.presenter.viewmodel.ReportViewModelFactory
 import com.example.bookreport.repository.*
 import dagger.BindsInstance
@@ -24,15 +28,26 @@ import dagger.Provides
         BookMarkRepositoryModule::class,
         KakaoBookDataSourceModule::class,
         KakaoBookRepositoryModule::class,
-        KakaoBookUseCaseModule::class
+        KakaoBookUseCaseModule::class,
+        BookListViewModelFactoryModule::class
     ]
 )
 interface BookListComponent {
-    fun inject(fragment: Fragment)
+    fun inject(fragment: BookSearchFragment)
+    fun inject(fragment: ReportEditFragment)
+    fun inject(fragment: ReportWriteFragment)
 
     @Component.Factory
     interface Factory {
         fun create(@BindsInstance context: Context): BookListComponent
+    }
+}
+
+@Module
+class BookListViewModelFactoryModule {
+    @Provides
+    fun providesBookListViewModelFactory(useCase: KakaoBookUseCase): ViewModelProvider.Factory{
+        return BookViewModelFactory(useCase)
     }
 }
 

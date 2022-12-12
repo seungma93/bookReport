@@ -2,15 +2,17 @@ package com.example.bookreport.presenter.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.*
+import com.example.bookreport.data.entity.BookAndBookMark
 import com.example.bookreport.data.entity.room.BookMark
 import com.example.bookreport.data.entity.BookMarkEntity
 import com.example.bookreport.domain.BookMarkUseCase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
-class BookMarkViewModel(private val useCase: BookMarkUseCase) : ViewModel() {
+class BookMarkViewModel @Inject constructor(private val useCase: BookMarkUseCase) : ViewModel() {
     private val _bookMarkLiveData = MutableLiveData<BookMarkEntity>()
     val bookMarkLiveData: LiveData<BookMarkEntity>
         get() = _bookMarkLiveData
@@ -39,6 +41,10 @@ class BookMarkViewModel(private val useCase: BookMarkUseCase) : ViewModel() {
             //val newList = bookMarkLiveData.value?.bookMarks.orEmpty() + result.bookMarks
             //_bookMarkLiveData.value = BookMarkEntity(useCase.loadBookMark().bookMarks)
         }
+    }
+
+    suspend fun loadBookMark2(): BookMarkEntity {
+        return useCase.loadBookMark()
     }
 }
 

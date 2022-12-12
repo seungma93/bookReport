@@ -15,22 +15,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bookreport.data.entity.KakaoBookMeta
 import com.example.bookreport.data.entity.room.BookMark
-import com.example.bookreport.data.local.BookMarkLocalDataSourceImpl
-import com.example.bookreport.data.remote.KakaoRemoteDataSource
 import com.example.bookreport.databinding.BookListItemBinding
 import com.example.bookreport.databinding.FragmentBookSearchBinding
 import com.example.bookreport.di.DaggerBookListComponent
 import com.example.bookreport.di.DaggerBookMarkComponent
-import com.example.bookreport.domain.KakaoBookUseCaseImpl
-import com.example.bookreport.network.BookRetrofitImpl
 import com.example.bookreport.presenter.BookListAdapter
 import com.example.bookreport.presenter.BookReport
 import com.example.bookreport.presenter.EndPoint
 import com.example.bookreport.presenter.viewmodel.BookMarkViewModel
 import com.example.bookreport.presenter.viewmodel.BookViewModel
-import com.example.bookreport.presenter.viewmodel.BookViewModelFactory
-import com.example.bookreport.repository.BookMarkRepositoryImpl
-import com.example.bookreport.repository.KakaoBookRepositoryImpl
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -79,21 +72,25 @@ class BookSearchFragment : Fragment() {
             val endPoint =
                 EndPoint.ReportWrite(bookAndBookMark = it)
             (requireActivity() as? BookReport)?.navigateFragment(endPoint)
-        }, {
-            when (bookListItemBinding.btnBookmark.isSelected) {
+        }, { bookAndBookMark ->
+            var isBookMark = false
+                lifecycleScope.launch {
+                    bookMarkViewModel.loadBookMark2().bookMarks.map { if (it.title == bookAndBookMark.bookMark?.title) isBookMark = true }
+                }
+            when (isBookMark) {
                 true -> {
                     lifecycleScope.launch {
-                        bookMarkViewModel.deleteBookMark(bookMark = BookMark(it.book.title))
+                        bookMarkViewModel.deleteBookMark(bookMark = BookMark(bookAndBookMark.book.title))
                         viewModel.refreshKey()
-                        bookListItemBinding.btnBookmark.isSelected = false
                     }
+                    false
                 }
                 false -> {
                     lifecycleScope.launch {
-                        bookMarkViewModel.saveBookMark(bookMark = BookMark(it.book.title))
+                        bookMarkViewModel.saveBookMark(bookMark = BookMark(bookAndBookMark.book.title))
                         viewModel.refreshKey()
-                        bookListItemBinding.btnBookmark.isSelected = true
                     }
+                    true
                 }
             }
         })

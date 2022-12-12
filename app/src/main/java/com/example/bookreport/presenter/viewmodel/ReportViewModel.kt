@@ -9,8 +9,9 @@ import com.example.bookreport.data.entity.room.Report
 import com.example.bookreport.data.entity.ReportEntity
 import com.example.bookreport.domain.ReportUseCase
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ReportViewModel(private val useCase: ReportUseCase) : ViewModel() {
+class ReportViewModel @Inject constructor(private val useCase: ReportUseCase) : ViewModel() {
     private val _liveData = MutableLiveData<ReportEntity>()
     val liveData: LiveData<ReportEntity>
         get() = _liveData

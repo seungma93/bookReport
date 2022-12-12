@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.bookreport.data.entity.room.BookMark
 import com.example.bookreport.data.entity.BookMarkEntity
 import com.example.bookreport.repository.BookMarkRepository
+import javax.inject.Inject
 
 interface BookMarkUseCase{
     suspend fun saveBookMark(bookMark: BookMark)
@@ -11,7 +12,7 @@ interface BookMarkUseCase{
     suspend fun loadBookMark(): BookMarkEntity
 }
 
-class BookMarkUseCaseImpl(private val bookMarkRepository: BookMarkRepository): BookMarkUseCase {
+class BookMarkUseCaseImpl @Inject constructor(private val bookMarkRepository: BookMarkRepository): BookMarkUseCase {
     override suspend fun saveBookMark(bookMark: BookMark) {
         bookMarkRepository.insertData(bookMark)
     }

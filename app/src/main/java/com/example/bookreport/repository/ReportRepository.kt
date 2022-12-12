@@ -6,6 +6,7 @@ import com.example.bookreport.data.entity.ReportEntity
 import com.example.bookreport.data.local.ReportLocalDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 interface ReportRepository{
     suspend fun save(report: Report)
@@ -13,7 +14,7 @@ interface ReportRepository{
     suspend fun update(report: Report)
 }
 
-class ReportRepositoryImpl(private val reportLocalDataSource: ReportLocalDataSource): ReportRepository {
+class ReportRepositoryImpl @Inject constructor(private val reportLocalDataSource: ReportLocalDataSource): ReportRepository {
     override suspend fun save(report: Report) {
         withContext(Dispatchers.IO) {
             reportLocalDataSource.insert(report)

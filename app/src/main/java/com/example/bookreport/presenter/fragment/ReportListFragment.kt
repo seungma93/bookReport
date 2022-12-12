@@ -11,17 +11,14 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import com.example.bookreport.R
 import com.example.bookreport.data.entity.room.Report
-import com.example.bookreport.data.local.ReportLocalDataSourceImpl
 import com.example.bookreport.databinding.FragmentReportListBinding
 import com.example.bookreport.di.DaggerReportComponent
-import com.example.bookreport.domain.ReportUseCaseImpl
-import com.example.bookreport.presenter.*
+import com.example.bookreport.presenter.BookReport
+import com.example.bookreport.presenter.EndPoint
+import com.example.bookreport.presenter.ReportListAdapter
 import com.example.bookreport.presenter.viewmodel.ReportViewModel
-import com.example.bookreport.presenter.viewmodel.ReportViewModelFactory
-import com.example.bookreport.repository.ReportRepositoryImpl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,8 +31,8 @@ class ReportListFragment : Fragment() {
     private val viewModel: ReportViewModel by activityViewModels { reportViewModelFactory }
 
     override fun onAttach(context: Context) {
-        DaggerReportComponent.factory().create(context).inject(this)
         super.onAttach(context)
+        DaggerReportComponent.factory().create(context).inject(this)
     }
 
     override fun onCreateView(
@@ -90,16 +87,16 @@ class ReportListFragment : Fragment() {
     }
 
     private fun toggleFab(isFabOpen: Boolean): Boolean {
-        if (isFabOpen) {
+        return if (isFabOpen) {
             ObjectAnimator.ofFloat(binding.btnFabSearch, "translationY", 0f).apply { start() }
             ObjectAnimator.ofFloat(binding.btnFabBookmark, "translationY", 0f).apply { start() }
             binding.btnFloating.setImageResource(R.drawable.btn_menu)
-            return false
+            false
         } else {
             ObjectAnimator.ofFloat(binding.btnFabSearch, "translationY", -200f).apply { start() }
             ObjectAnimator.ofFloat(binding.btnFabBookmark, "translationY", -400f).apply { start() }
             binding.btnFloating.setImageResource(R.drawable.btn_close)
-            return true
+            true
         }
     }
 }
