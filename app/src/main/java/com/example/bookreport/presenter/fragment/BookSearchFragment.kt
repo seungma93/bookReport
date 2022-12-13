@@ -34,8 +34,6 @@ class BookSearchFragment : Fragment() {
 
     private var _binding: FragmentBookSearchBinding? = null
     private val binding get() = _binding!!
-    private var _bookListItemBinding: BookListItemBinding? = null
-    private val bookListItemBinding get() = _bookListItemBinding!!
     private var adapter: BookListAdapter? = null
     private val onScrollListener: RecyclerView.OnScrollListener = OnScrollListener()
     private lateinit var bookMetaData: KakaoBookMeta
@@ -60,7 +58,6 @@ class BookSearchFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentBookSearchBinding.inflate(inflater, container, false)
-        _bookListItemBinding = BookListItemBinding.inflate(inflater, container, false)
         Log.v("BookSearchFragment", "onCreateView")
         return binding.root
     }
@@ -72,25 +69,19 @@ class BookSearchFragment : Fragment() {
             val endPoint =
                 EndPoint.ReportWrite(bookAndBookMark = it)
             (requireActivity() as? BookReport)?.navigateFragment(endPoint)
-        }, { bookAndBookMark ->
-            var isBookMark = false
-                lifecycleScope.launch {
-                    bookMarkViewModel.loadBookMark2().bookMarks.map { if (it.title == bookAndBookMark.bookMark?.title) isBookMark = true }
-                }
+        }, { bookAndBookMark, isBookMark ->
             when (isBookMark) {
                 true -> {
                     lifecycleScope.launch {
                         bookMarkViewModel.deleteBookMark(bookMark = BookMark(bookAndBookMark.book.title))
                         viewModel.refreshKey()
                     }
-                    false
                 }
                 false -> {
                     lifecycleScope.launch {
                         bookMarkViewModel.saveBookMark(bookMark = BookMark(bookAndBookMark.book.title))
                         viewModel.refreshKey()
                     }
-                    true
                 }
             }
         })
@@ -117,7 +108,6 @@ class BookSearchFragment : Fragment() {
         adapter = null
         binding.bookList.removeOnScrollListener(onScrollListener)
         _binding = null
-        _bookListItemBinding = null
         Log.v("BookSearchFragment", "onDestroyView")
     }
 

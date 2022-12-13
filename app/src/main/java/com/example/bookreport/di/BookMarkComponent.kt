@@ -40,14 +40,6 @@ interface BookMarkComponent {
 }
 
 @Module
-class BookMarkViewModelModule {
-    @Provides
-    fun providesBookMarkViewModel(useCase: BookMarkUseCase): ViewModelProvider.Factory {
-        return BookMarkViewModelFactory(useCase)
-    }
-}
-
-@Module
 class BookMarkDataSourceModule {
     @Provides
     fun providesBookMarkLocalDataSource(context: Context): BookMarkLocalDataSource {
@@ -68,5 +60,13 @@ class BookMarkUseCaseModule {
     @Provides
     fun providesBookMarkUseCase(repository: BookMarkRepository): BookMarkUseCase {
         return BookMarkUseCaseImpl(repository)
+    }
+}
+
+@Module
+class BookMarkViewModelModule {
+    @Provides
+    fun providesBookMarkViewModel(useCase: BookMarkUseCase): ViewModelProvider.Factory {
+        return BookMarkViewModelFactory(useCase)
     }
 }

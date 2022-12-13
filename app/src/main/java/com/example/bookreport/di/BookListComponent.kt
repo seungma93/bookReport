@@ -44,14 +44,6 @@ interface BookListComponent {
 }
 
 @Module
-class BookListViewModelFactoryModule {
-    @Provides
-    fun providesBookListViewModelFactory(useCase: KakaoBookUseCase): ViewModelProvider.Factory{
-        return BookViewModelFactory(useCase)
-    }
-}
-
-@Module
 class KakaoBookDataSourceModule {
     @Provides
     fun providesKakaoRemoteDataSource(): KakaoRemoteDataSource {
@@ -64,7 +56,6 @@ class KakaoBookRepositoryModule {
     @Provides
     fun providesKakaoBookRepository(dataSource: KakaoRemoteDataSource): KakaoBookRepository {
         return KakaoBookRepositoryImpl(dataSource)
-
     }
 }
 
@@ -79,4 +70,10 @@ class KakaoBookUseCaseModule {
     }
 }
 
-
+@Module
+class BookListViewModelFactoryModule {
+    @Provides
+    fun providesBookListViewModelFactory(useCase: KakaoBookUseCase): ViewModelProvider.Factory{
+        return BookViewModelFactory(useCase)
+    }
+}
