@@ -5,6 +5,7 @@ import android.util.Log
 import com.example.bookreport.data.entity.room.BookMark
 import com.example.bookreport.data.entity.room.BookMarkDatabase
 import com.example.bookreport.data.entity.BookMarkEntity
+import javax.inject.Inject
 
 interface BookMarkLocalDataSource{
     suspend fun insert(bookMark: BookMark)
@@ -12,7 +13,7 @@ interface BookMarkLocalDataSource{
     suspend fun select(): BookMarkEntity
 }
 
-class BookMarkLocalDataSourceImpl(private val context: Context): BookMarkLocalDataSource {
+class BookMarkLocalDataSourceImpl @Inject constructor(private val context: Context): BookMarkLocalDataSource {
     private val db = BookMarkDatabase.getInstance(context.applicationContext)!!
 
     override suspend fun insert(bookMark: BookMark) {

@@ -1,15 +1,14 @@
-package com.example.bookreport
+package com.example.bookreport.presenter.viewmodel
 
 import androidx.lifecycle.*
 import com.example.bookreport.data.entity.BookListEntity
-import com.example.bookreport.data.entity.KakaoBook
-import com.example.bookreport.data.entity.KakaoBookResultEntity
 import com.example.bookreport.domain.KakaoBookUseCase
-import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
-class BookViewModel(private val useCase: KakaoBookUseCase) : ViewModel() {
+class BookViewModel @Inject constructor(private val useCase: KakaoBookUseCase) : ViewModel() {
     private val _bookLiveData = MutableLiveData<BookListEntity>()
     val bookLiveData: LiveData<BookListEntity>
         get() = _bookLiveData
@@ -32,6 +31,7 @@ class BookViewModel(private val useCase: KakaoBookUseCase) : ViewModel() {
                 }.onFailure {
                     _error.value = it
                 }
+                delay(1000)
                 isLoading = false
             }
         }
@@ -50,6 +50,13 @@ class BookViewModel(private val useCase: KakaoBookUseCase) : ViewModel() {
                 }
                 isLoading = false
             }
+        }
+    }
+
+    suspend fun refreshKey() = viewModelScope.launch {
+        val old = bookLiveData.value
+        if (old != null) {
+            _bookLiveData.value = useCase.refreshBookMark(old)
         }
     }
 }

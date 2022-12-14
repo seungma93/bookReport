@@ -6,6 +6,7 @@ import com.example.bookreport.data.entity.BookMarkEntity
 import com.example.bookreport.data.local.BookMarkLocalDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 interface BookMarkRepository{
     suspend fun insertData(bookMark: BookMark)
@@ -13,7 +14,7 @@ interface BookMarkRepository{
     suspend fun selectData(): BookMarkEntity
 }
 
-class BookMarkRepositoryImpl(private val bookMarkLocalDataSource: BookMarkLocalDataSource):BookMarkRepository {
+class BookMarkRepositoryImpl @Inject constructor(private val bookMarkLocalDataSource: BookMarkLocalDataSource):BookMarkRepository {
     override suspend fun insertData(bookMark: BookMark) {
         withContext(Dispatchers.IO) {
             bookMarkLocalDataSource.insert(bookMark)

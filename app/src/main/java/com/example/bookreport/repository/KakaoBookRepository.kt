@@ -5,13 +5,14 @@ import com.example.bookreport.data.mapper.toEntity
 import com.example.bookreport.data.remote.KakaoRemoteDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 
 interface KakaoBookRepository{
     suspend fun getBookRepository(keyword: String, page: Int): KakaoBookResultEntity
 }
 
-class KakaoBookRepositoryImpl(private val bookRemoteDataSource : KakaoRemoteDataSource) : KakaoBookRepository {
+class KakaoBookRepositoryImpl @Inject constructor(private val bookRemoteDataSource : KakaoRemoteDataSource) : KakaoBookRepository {
     override suspend fun getBookRepository(keyword: String, page: Int) : KakaoBookResultEntity{
        return withContext(Dispatchers.IO){
            val response = bookRemoteDataSource.getSearchKeyword(keyword, page)

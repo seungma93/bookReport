@@ -4,13 +4,15 @@ import android.content.Context
 import com.example.bookreport.data.entity.room.Report
 import com.example.bookreport.data.entity.room.ReportDatabase
 import com.example.bookreport.data.entity.ReportEntity
+import javax.inject.Inject
 
 interface ReportLocalDataSource {
     suspend fun insert(report: Report)
     suspend fun select(): ReportEntity
+    suspend fun update(report: Report)
 }
 
-class ReportLocalDataSourceImpl(private val context: Context) : ReportLocalDataSource {
+class ReportLocalDataSourceImpl @Inject constructor(private val context: Context) : ReportLocalDataSource {
     private val db = ReportDatabase.getInstance(context.applicationContext)!!
 
     override suspend fun insert(report: Report) {
@@ -19,5 +21,9 @@ class ReportLocalDataSourceImpl(private val context: Context) : ReportLocalDataS
 
     override suspend fun select(): ReportEntity {
         return ReportEntity(db.reportDao().getAll())
+    }
+
+    override suspend fun update(report: Report) {
+        db.reportDao().update(report)
     }
 }
