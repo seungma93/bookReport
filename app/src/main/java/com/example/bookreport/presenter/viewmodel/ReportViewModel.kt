@@ -8,13 +8,22 @@ import androidx.room.PrimaryKey
 import com.example.bookreport.data.entity.room.Report
 import com.example.bookreport.data.entity.ReportEntity
 import com.example.bookreport.domain.ReportUseCase
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Named
 
 class ReportViewModel @Inject constructor(private val useCase: ReportUseCase) : ViewModel() {
+    /*
     private val _liveData = MutableLiveData<ReportEntity>()
     val liveData: LiveData<ReportEntity>
         get() = _liveData
+     */
+    private val reportEntity: ReportEntity? = null
+    private val _reportState = MutableStateFlow<ReportEntity?>(reportEntity)
+    val reportState: StateFlow<ReportEntity?> = _reportState.asStateFlow()
     private val _error = MutableLiveData<Throwable>()
     val error: LiveData<Throwable>
         get() = _error
@@ -36,7 +45,7 @@ class ReportViewModel @Inject constructor(private val useCase: ReportUseCase) : 
         viewModelScope.launch {
             // suspend 함수 호출
             kotlin.runCatching {
-                _liveData.value = useCase.loadReport()
+                _reportState.value = useCase.loadReport()
             }.onFailure {
                 _error.value = it
             }

@@ -10,24 +10,28 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.bookreport.databinding.FragmentBookmarkListBinding
-import com.example.bookreport.di.DaggerBookMarkComponent
-import com.example.bookreport.presenter.BookMarkListAdapter
+import com.example.bookreport.di.DaggerBookReportComponent
+import com.example.bookreport.presenter.adapter.BookMarkListAdapter
 import com.example.bookreport.presenter.viewmodel.BookMarkViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import javax.inject.Named
 
 class BookMarkListFragment: Fragment() {
     private var _binding: FragmentBookmarkListBinding? = null
     private val binding get() = _binding!!
     private var adapter: BookMarkListAdapter? = null
     @Inject
+    @Named ("BookMarkViewModelFactory")
     lateinit var bookMarkViewModelFactory: ViewModelProvider.Factory
-    private val viewModel: BookMarkViewModel by activityViewModels { bookMarkViewModelFactory }
+    private val bookMarkViewModel: BookMarkViewModel by activityViewModels { bookMarkViewModelFactory }
 
     override fun onAttach(context: Context) {
-        DaggerBookMarkComponent.factory().create(context).inject(this)
+        DaggerBookReportComponent.factory().create(context).inject(this)
         super.onAttach(context)
     }
 
@@ -44,7 +48,7 @@ class BookMarkListFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
         adapter = BookMarkListAdapter()
         viewLifecycleOwner.lifecycleScope.launch (Dispatchers.IO){
-            viewModel.loadBookMark()
+            bookMarkViewModel.loadBookMark()
             withContext(Dispatchers.Main){
                 subscribe()
             }
@@ -57,10 +61,18 @@ class BookMarkListFragment: Fragment() {
         adapter = null
         _binding = null
     }
-
+/*
     private fun subscribe() {
         viewModel.bookMarkLiveData.observe(viewLifecycleOwner){
             adapter?.setItems(it.bookMarks)
+        }
+    }
+ */
+    private fun subscribe() {
+        lifecycleScope.launchWhenStarted {
+            bookMarkViewModel.bookMarkState.filterNotNull().collectLatest {
+                adapter?.setItems(it.bookMarks)
+            }
         }
     }
 }

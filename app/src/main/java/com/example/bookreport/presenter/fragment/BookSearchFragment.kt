@@ -15,17 +15,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bookreport.data.entity.KakaoBookMeta
 import com.example.bookreport.data.entity.room.BookMark
-import com.example.bookreport.databinding.BookListItemBinding
 import com.example.bookreport.databinding.FragmentBookSearchBinding
-import com.example.bookreport.di.DaggerBookListComponent
-import com.example.bookreport.di.DaggerBookMarkComponent
-import com.example.bookreport.presenter.BookListAdapter
+import com.example.bookreport.di.DaggerBookReportComponent
 import com.example.bookreport.presenter.BookReport
 import com.example.bookreport.presenter.EndPoint
+import com.example.bookreport.presenter.adapter.BookListAdapter
 import com.example.bookreport.presenter.viewmodel.BookMarkViewModel
 import com.example.bookreport.presenter.viewmodel.BookViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Named
 
 class BookSearchFragment : Fragment() {
     companion object {
@@ -36,19 +37,20 @@ class BookSearchFragment : Fragment() {
     private val binding get() = _binding!!
     private var adapter: BookListAdapter? = null
     private val onScrollListener: RecyclerView.OnScrollListener = OnScrollListener()
-    private lateinit var bookMetaData: KakaoBookMeta
+    private var bookMetaData: KakaoBookMeta? = null
     private var keyword: String = ""
 
     @Inject
+    @Named("BookListViewModelFactory")
     lateinit var bookListViewModelFactory: ViewModelProvider.Factory
     private val viewModel: BookViewModel by activityViewModels { bookListViewModelFactory }
     @Inject
+    @Named ("BookMarkViewModelFactory")
     lateinit var bookMarkViewModelFactory: ViewModelProvider.Factory
     private val bookMarkViewModel: BookMarkViewModel by activityViewModels { bookMarkViewModelFactory }
 
     override fun onAttach(context: Context) {
-        DaggerBookMarkComponent.factory().create(context).inject(this)
-        DaggerBookListComponent.factory().create(context).inject(this)
+        DaggerBookReportComponent.factory().create(context).inject(this)
         super.onAttach(context)
     }
 
@@ -116,7 +118,7 @@ class BookSearchFragment : Fragment() {
         Log.v("BookSearchFragment", "onDestroy")
     }
 
-    // 뷰 모델 구독
+    /*
     private fun subscribe() {
         viewModel.bookLiveData.observe(viewLifecycleOwner) {
             // 변경된 liveData 삽입
@@ -126,6 +128,18 @@ class BookSearchFragment : Fragment() {
             Log.v("subscribe", "구독")
             adapter?.setItems(it.entities)
             Log.v("아답터아이템갯수", adapter!!.itemCount.toString())
+        }
+    }
+*/
+    private fun subscribe() {
+        lifecycleScope.launchWhenStarted {
+            viewModel.bookState.filterNotNull().collectLatest {
+                if (it.meta != null) {
+                    bookMetaData = it.meta
+                }
+                Log.v("subscribe", "구독2")
+                adapter?.setItems(it.entities)
+            }
         }
     }
 
@@ -149,14 +163,18 @@ class BookSearchFragment : Fragment() {
             val itemCount = (adapter?.itemCount?.minus(1) ?: 10)
 
             if (itemCount == lastVisibleItemPosition) {
-                if (bookMetaData.isEnd == false) {
-                    moreItems()
-                } else {
-                    Toast.makeText(requireContext(), "마지막 페이지 입니다.", Toast.LENGTH_SHORT).show()
-                    binding.bookList.post {
-                        adapter?.unsetLoading()
+                Log.v("BookSearchFragment", "onScrolled")
+                if(bookMetaData != null){
+                    if (bookMetaData?.isEnd == false) {
+                        moreItems()
+                    } else {
+                        Toast.makeText(requireContext(), "마지막 페이지 입니다.", Toast.LENGTH_SHORT).show()
+                        binding.bookList.post {
+                            adapter?.unsetLoading()
+                        }
                     }
                 }
+
             }
         }
     }

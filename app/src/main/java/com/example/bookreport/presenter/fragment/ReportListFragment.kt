@@ -9,30 +9,35 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.bookreport.R
 import com.example.bookreport.data.entity.room.Report
 import com.example.bookreport.databinding.FragmentReportListBinding
-import com.example.bookreport.di.DaggerReportComponent
+import com.example.bookreport.di.DaggerBookReportComponent
 import com.example.bookreport.presenter.BookReport
 import com.example.bookreport.presenter.EndPoint
-import com.example.bookreport.presenter.ReportListAdapter
+import com.example.bookreport.presenter.adapter.ReportListAdapter
 import com.example.bookreport.presenter.viewmodel.ReportViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Named
 
 class ReportListFragment : Fragment() {
     private var _binding: FragmentReportListBinding? = null
     private val binding get() = _binding!!
     private var adapter: ReportListAdapter? = null
     @Inject
+    @Named("ReportViewModelFactory")
     lateinit var reportViewModelFactory: ViewModelProvider.Factory
-    private val viewModel: ReportViewModel by activityViewModels { reportViewModelFactory }
+    private val reportViewModel: ReportViewModel by activityViewModels { reportViewModelFactory }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        DaggerReportComponent.factory().create(context).inject(this)
+        DaggerBookReportComponent.factory().create(context).inject(this)
     }
 
     override fun onCreateView(
@@ -51,7 +56,7 @@ class ReportListFragment : Fragment() {
             (requireActivity() as? BookReport)?.navigateFragment(endPoint)
         }
         CoroutineScope(Dispatchers.Main).launch {
-            viewModel.load()
+            reportViewModel.load()
             subscribe()
         }
         binding.apply {
@@ -77,12 +82,21 @@ class ReportListFragment : Fragment() {
         _binding = null
     }
 
-    // 뷰 모델 구독
+    /*
     private fun subscribe() {
         // liveData 옵저버 viewLifecycleOwner : 라이프사이클 상태를 다양하게 가지고 있음
-        viewModel.liveData.observe(viewLifecycleOwner) {
+        reportViewModel.liveData.observe(viewLifecycleOwner) {
             // 변경된 liveData 삽입
             adapter?.setItems(it.documents as MutableList<Report>)
+        }
+    }
+     */
+
+    private fun subscribe() {
+        lifecycleScope.launchWhenStarted {
+            reportViewModel.reportState.filterNotNull().collectLatest {
+                adapter?.setItems(it.documents as MutableList<Report>)
+            }
         }
     }
 

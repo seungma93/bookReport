@@ -1,10 +1,9 @@
-package com.example.bookreport.presenter
+package com.example.bookreport.presenter.adapter
 
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.bookreport.data.entity.BookAndBookMark
 import com.example.bookreport.data.entity.room.BookMark
 import com.example.bookreport.databinding.BookmarkListItemBinding
 

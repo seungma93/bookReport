@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.bookreport.domain.ReportUseCase
 import javax.inject.Inject
+import javax.inject.Named
 
 
 class ReportViewModelFactory @Inject constructor(private val useCase: ReportUseCase) : ViewModelProvider.Factory {
