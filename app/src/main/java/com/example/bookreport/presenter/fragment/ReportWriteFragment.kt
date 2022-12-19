@@ -16,7 +16,7 @@ import com.example.bookreport.data.entity.BookAndBookMark
 import com.example.bookreport.data.entity.room.BookMark
 import com.example.bookreport.data.entity.room.Report
 import com.example.bookreport.databinding.FragmentReportWriteBinding
-import com.example.bookreport.di.DaggerBookReportComponent
+import com.example.bookreport.di.DaggerReportWriteComponent
 import com.example.bookreport.presenter.BookReport
 import com.example.bookreport.presenter.EndPoint
 import com.example.bookreport.presenter.viewmodel.BookMarkViewModel
@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import javax.inject.Named
 
 
 class ReportWriteFragment : Fragment() {
@@ -38,20 +37,17 @@ class ReportWriteFragment : Fragment() {
     private val kakaoBook get() = requireArguments().getSerializable(BookSearchFragment.KAKAO_BOOK_KEY) as BookAndBookMark
 
     @Inject
-    @Named("ReportViewModelFactory")
     lateinit var reportViewModelFactory: ViewModelProvider.Factory
     private val reportViewModel: ReportViewModel by viewModels { reportViewModelFactory }
     @Inject
-    @Named("BookMarkViewModelFactory")
     lateinit var bookMarkViewModelFactory: ViewModelProvider.Factory
     private val bookMarkViewModel: BookMarkViewModel by activityViewModels { bookMarkViewModelFactory }
     @Inject
-    @Named("BookListViewModelFactory")
     lateinit var bookListViewModelFactory: ViewModelProvider.Factory
     private val bookListViewModel: BookViewModel by activityViewModels { bookListViewModelFactory }
 
     override fun onAttach(context: Context) {
-        DaggerBookReportComponent.factory().create(context).inject(this)
+        DaggerReportWriteComponent.factory().create(context).inject(this)
         super.onAttach(context)
     }
 

@@ -10,7 +10,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.bookreport.databinding.FragmentBookmarkListBinding
-import com.example.bookreport.di.DaggerBookReportComponent
+import com.example.bookreport.di.DaggerBookMarkListComponent
 import com.example.bookreport.presenter.adapter.BookMarkListAdapter
 import com.example.bookreport.presenter.viewmodel.BookMarkViewModel
 import kotlinx.coroutines.Dispatchers
@@ -19,19 +19,17 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import javax.inject.Named
 
 class BookMarkListFragment: Fragment() {
     private var _binding: FragmentBookmarkListBinding? = null
     private val binding get() = _binding!!
     private var adapter: BookMarkListAdapter? = null
     @Inject
-    @Named ("BookMarkViewModelFactory")
     lateinit var bookMarkViewModelFactory: ViewModelProvider.Factory
     private val bookMarkViewModel: BookMarkViewModel by activityViewModels { bookMarkViewModelFactory }
 
     override fun onAttach(context: Context) {
-        DaggerBookReportComponent.factory().create(context).inject(this)
+        DaggerBookMarkListComponent.factory().create(context).inject(this)
         super.onAttach(context)
     }
 

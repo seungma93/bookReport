@@ -13,7 +13,7 @@ import com.bumptech.glide.Glide
 import com.example.bookreport.data.entity.room.BookMark
 import com.example.bookreport.data.entity.room.Report
 import com.example.bookreport.databinding.FragmentReportEditBinding
-import com.example.bookreport.di.DaggerBookReportComponent
+import com.example.bookreport.di.DaggerReportEditComponent
 import com.example.bookreport.presenter.BookReport
 import com.example.bookreport.presenter.EndPoint
 import com.example.bookreport.presenter.viewmodel.BookMarkViewModel
@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import javax.inject.Named
 
 class ReportEditFragment : Fragment() {
     companion object {
@@ -38,20 +37,17 @@ class ReportEditFragment : Fragment() {
     private val report get() = requireArguments().getSerializable(ReportEditFragment.REPORT_KEY) as Report
 
     @Inject
-    @Named("ReportViewModelFactory")
     lateinit var reportViewModelFactory: ViewModelProvider.Factory
     private val reportViewModel: ReportViewModel by activityViewModels { reportViewModelFactory }
     @Inject
-    @Named("BookMarkViewModelFactory")
     lateinit var bookMarkViewModelFactory: ViewModelProvider.Factory
     private val bookMarkViewModel: BookMarkViewModel by activityViewModels { bookMarkViewModelFactory }
     @Inject
-    @Named("BookListViewModelFactory")
     lateinit var bookListViewModelFactory: ViewModelProvider.Factory
     private val bookListViewModel: BookViewModel by activityViewModels { bookListViewModelFactory }
 
     override fun onAttach(context: Context) {
-        DaggerBookReportComponent.factory().create(context).inject(this)
+        DaggerReportEditComponent.factory().create(context).inject(this)
         super.onAttach(context)
     }
 

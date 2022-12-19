@@ -13,7 +13,9 @@ import androidx.lifecycle.lifecycleScope
 import com.example.bookreport.R
 import com.example.bookreport.data.entity.room.Report
 import com.example.bookreport.databinding.FragmentReportListBinding
-import com.example.bookreport.di.DaggerBookReportComponent
+import com.example.bookreport.di.DaggerReportListComponent
+import com.example.bookreport.di.Module_BookMarkDatabaseModule_ProvidesBookMarkDatabaseFactory.create
+import com.example.bookreport.di.Module_ReportViewModelModule_ProvidesReportViewModelFactory.create
 import com.example.bookreport.presenter.BookReport
 import com.example.bookreport.presenter.EndPoint
 import com.example.bookreport.presenter.adapter.ReportListAdapter
@@ -24,20 +26,18 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Named
 
 class ReportListFragment : Fragment() {
     private var _binding: FragmentReportListBinding? = null
     private val binding get() = _binding!!
     private var adapter: ReportListAdapter? = null
     @Inject
-    @Named("ReportViewModelFactory")
     lateinit var reportViewModelFactory: ViewModelProvider.Factory
     private val reportViewModel: ReportViewModel by activityViewModels { reportViewModelFactory }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        DaggerBookReportComponent.factory().create(context).inject(this)
+        DaggerReportListComponent.factory().create(context).inject(this)
     }
 
     override fun onCreateView(

@@ -1,15 +1,16 @@
 package com.example.bookreport.presenter.viewmodel
 
-import androidx.lifecycle.*
-import com.example.bookreport.data.entity.BookAndBookMark
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.bookreport.data.entity.BookListEntity
-import com.example.bookreport.data.entity.KakaoBook
 import com.example.bookreport.domain.KakaoBookUseCase
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Named
 
 
 class BookViewModel @Inject constructor(private val useCase: KakaoBookUseCase) : ViewModel() {
@@ -18,21 +19,13 @@ class BookViewModel @Inject constructor(private val useCase: KakaoBookUseCase) :
     val bookLiveData: LiveData<BookListEntity>
         get() = _bookLiveData
      */
-    private val bookListEntity: BookListEntity? = null
-    private val _bookState = MutableStateFlow<BookListEntity?>(bookListEntity)
+    private val _bookState = MutableStateFlow<BookListEntity?>(null)
     val bookState: StateFlow<BookListEntity?> = _bookState.asStateFlow()
     private val _error = MutableLiveData<Throwable>()
     val error: LiveData<Throwable>
         get() = _error
-    private var isLoading = false
 
-    fun insertKey(keyword: String, page: Int) {
-
-        if (isLoading.not()) {
-            // 코루틴 스코프 시작
-            viewModelScope.launch {
-                isLoading = true
-                // suspend 함수 호출
+    suspend fun insertKey(keyword: String, page: Int) {
                 kotlin.runCatching {
                     val result = useCase.searchBook(keyword, page)
                     val old = bookState.value?.entities.orEmpty()
@@ -40,26 +33,14 @@ class BookViewModel @Inject constructor(private val useCase: KakaoBookUseCase) :
                 }.onFailure {
                     _error.value = it
                 }
-                delay(1000)
-                isLoading = false
-            }
-        }
     }
 
-    fun insertNewKey(keyword: String, page: Int) {
-        if (!isLoading) {
-            // 코루틴 스코프 시작
-            viewModelScope.launch {
-                isLoading = true
-                // suspend 함수 호출
+    suspend fun insertNewKey(keyword: String, page: Int) {
                 kotlin.runCatching {
                     _bookState.value = useCase.searchBook(keyword, page)
                 }.onFailure {
                     _error.value = it
                 }
-                isLoading = false
-            }
-        }
     }
 
     suspend fun refreshKey() = viewModelScope.launch {

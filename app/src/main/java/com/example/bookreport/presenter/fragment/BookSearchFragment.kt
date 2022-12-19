@@ -16,7 +16,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.bookreport.data.entity.KakaoBookMeta
 import com.example.bookreport.data.entity.room.BookMark
 import com.example.bookreport.databinding.FragmentBookSearchBinding
-import com.example.bookreport.di.DaggerBookReportComponent
+import com.example.bookreport.di.DaggerBookSearchComponent
+import com.example.bookreport.di.DaggerReportEditComponent
 import com.example.bookreport.presenter.BookReport
 import com.example.bookreport.presenter.EndPoint
 import com.example.bookreport.presenter.adapter.BookListAdapter
@@ -26,7 +27,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Named
 
 class BookSearchFragment : Fragment() {
     companion object {
@@ -41,16 +41,14 @@ class BookSearchFragment : Fragment() {
     private var keyword: String = ""
 
     @Inject
-    @Named("BookListViewModelFactory")
     lateinit var bookListViewModelFactory: ViewModelProvider.Factory
     private val viewModel: BookViewModel by activityViewModels { bookListViewModelFactory }
     @Inject
-    @Named ("BookMarkViewModelFactory")
     lateinit var bookMarkViewModelFactory: ViewModelProvider.Factory
     private val bookMarkViewModel: BookMarkViewModel by activityViewModels { bookMarkViewModelFactory }
 
     override fun onAttach(context: Context) {
-        DaggerBookReportComponent.factory().create(context).inject(this)
+        DaggerBookSearchComponent.factory().create(context).inject(this)
         super.onAttach(context)
     }
 
@@ -94,7 +92,9 @@ class BookSearchFragment : Fragment() {
             btnSearch.setOnClickListener {
                 keyword = edit.text.toString()
                 if (keyword.isNotEmpty()) {
-                    viewModel.insertNewKey(keyword, 1)
+                    lifecycleScope.launch {
+                        viewModel.insertNewKey(keyword, 1)
+                    }
                 }
             }
         }
@@ -152,7 +152,9 @@ class BookSearchFragment : Fragment() {
         val keyword = binding.edit.text.toString()
         val page = ((adapter?.itemCount)?.div(10) ?: 10) + 1
         Log.v("페이지", page.toString())
-        viewModel.insertKey(keyword, page)
+        lifecycleScope.launch {
+            viewModel.insertKey(keyword, page)
+        }
     }
 
     private inner class OnScrollListener : RecyclerView.OnScrollListener() {

@@ -12,9 +12,8 @@ interface ReportLocalDataSource {
     suspend fun update(report: Report)
 }
 
-class ReportLocalDataSourceImpl @Inject constructor(private val context: Context) : ReportLocalDataSource {
-    private val db = ReportDatabase.getInstance(context.applicationContext)!!
-
+class ReportLocalDataSourceImpl @Inject constructor(private val db: ReportDatabase) :
+    ReportLocalDataSource {
     override suspend fun insert(report: Report) {
         db.reportDao().insert(report)
     }

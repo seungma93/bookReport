@@ -1,20 +1,15 @@
 package com.example.bookreport.presenter.viewmodel
 
-import android.util.Log
-import androidx.lifecycle.*
-import com.example.bookreport.data.entity.BookAndBookMark
-import com.example.bookreport.data.entity.BookListEntity
-import com.example.bookreport.data.entity.room.BookMark
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.bookreport.data.entity.BookMarkEntity
+import com.example.bookreport.data.entity.room.BookMark
 import com.example.bookreport.domain.BookMarkUseCase
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Named
 
 
 class BookMarkViewModel @Inject constructor(private val useCase: BookMarkUseCase) : ViewModel() {
@@ -28,7 +23,7 @@ class BookMarkViewModel @Inject constructor(private val useCase: BookMarkUseCase
     val bookMarkState: StateFlow<BookMarkEntity?> = _bookMarkState.asStateFlow()
 
     suspend fun saveBookMark(bookMark: BookMark) = viewModelScope.launch {
-        useCase.saveBookMark(bookMark)
+            useCase.saveBookMark(bookMark)
     }
     suspend fun deleteBookMark(bookMark: BookMark) {
             useCase.deleteBookMark(bookMark)
@@ -36,7 +31,6 @@ class BookMarkViewModel @Inject constructor(private val useCase: BookMarkUseCase
     suspend fun loadBookMark() = viewModelScope.launch {
             _bookMarkState.value = useCase.loadBookMark()
     }
-
 }
 
 
