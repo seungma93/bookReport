@@ -1,6 +1,7 @@
 package com.example.bookreport.network
 
 
+import com.example.bookreport.data.remote.GoogleBooksRemoteDataSource
 import com.example.bookreport.data.remote.KakaoRemoteDataSource
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -11,7 +12,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 
 // 레트로핏 object
-object BookRetrofitImpl {
+object GoogleBooksRetrofitImpl {
     // 인터셉터 생성
     private val interceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -26,7 +27,7 @@ object BookRetrofitImpl {
     // Retrofit 생성
     fun getRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(KakaoRemoteDataSource.BASE_URL)
+            .baseUrl(GoogleBooksRemoteDataSource.BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -37,7 +38,7 @@ object BookRetrofitImpl {
         @Throws(IOException::class)
         override fun intercept(chain: Interceptor.Chain): Response = with(chain) {
             val newRequest = request().newBuilder()
-                .addHeader("Authorization", KakaoRemoteDataSource.API_KEY)
+                //.addHeader("Authorization", KakaoRemoteDataSource.API_KEY)
                 .build()
             proceed(newRequest)
         }

@@ -12,14 +12,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.bookreport.R
 import com.example.bookreport.data.entity.room.Report
+import com.example.bookreport.data.remote.GoogleBooksRemoteDataSource
 import com.example.bookreport.databinding.FragmentReportListBinding
 import com.example.bookreport.di.DaggerReportListComponent
-import com.example.bookreport.di.Module_BookMarkDatabaseModule_ProvidesBookMarkDatabaseFactory.create
-import com.example.bookreport.di.Module_ReportViewModelModule_ProvidesReportViewModelFactory.create
+import com.example.bookreport.network.GoogleBooksRetrofitImpl
 import com.example.bookreport.presenter.BookReport
 import com.example.bookreport.presenter.EndPoint
 import com.example.bookreport.presenter.adapter.ReportListAdapter
 import com.example.bookreport.presenter.viewmodel.ReportViewModel
+import com.example.bookreport.repository.GoogleBooksRepositoryImpl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -72,6 +73,13 @@ class ReportListFragment : Fragment() {
             btnFabBookmark.setOnClickListener {
                 val endPoint = EndPoint.BookMarkList(0)
                 (requireActivity() as? BookReport)?.navigateFragment(endPoint)
+            }
+            btnTest.setOnClickListener {
+                val retrofit = GoogleBooksRetrofitImpl.getRetrofit().create(GoogleBooksRemoteDataSource::class.java)
+                val repository = GoogleBooksRepositoryImpl(retrofit)
+                lifecycleScope.launch{
+                    repository.getGoogleBooksEntity("ants")
+                }
             }
         }
     }

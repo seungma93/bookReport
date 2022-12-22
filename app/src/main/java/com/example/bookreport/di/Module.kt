@@ -11,7 +11,7 @@ import com.example.bookreport.data.local.ReportLocalDataSource
 import com.example.bookreport.data.local.ReportLocalDataSourceImpl
 import com.example.bookreport.data.remote.KakaoRemoteDataSource
 import com.example.bookreport.domain.*
-import com.example.bookreport.network.BookRetrofitImpl
+import com.example.bookreport.network.KakaoBookRetrofitImpl
 import com.example.bookreport.presenter.viewmodel.BookMarkViewModel
 import com.example.bookreport.presenter.viewmodel.BookViewModel
 import com.example.bookreport.presenter.viewmodel.ReportViewModel
@@ -28,7 +28,7 @@ class Module {
     class KakaoBookDataSourceModule {
         @Provides
         fun providesKakaoRemoteDataSource(): KakaoRemoteDataSource {
-            return BookRetrofitImpl.getRetrofit().create(KakaoRemoteDataSource::class.java)
+            return KakaoBookRetrofitImpl.getRetrofit().create(KakaoRemoteDataSource::class.java)
         }
     }
 

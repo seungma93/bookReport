@@ -6,14 +6,14 @@ import androidx.room.PrimaryKey
 import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
 import com.example.bookreport.data.entity.BookAndBookMark
-import com.example.bookreport.data.entity.KakaoBook
+import com.example.bookreport.data.entity.KakaoBookDocuments
 import com.google.gson.Gson
 import java.io.Serializable
 
 
 @Entity
 data class Report(
-    @Embedded var book: KakaoBook,
+    @Embedded var book: KakaoBookDocuments,
     var context: String,
     @PrimaryKey(autoGenerate = true)
     var no: Int = 0

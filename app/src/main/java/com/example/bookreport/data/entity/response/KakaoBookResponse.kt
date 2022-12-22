@@ -2,18 +2,18 @@ package com.example.bookreport
 
 import com.google.gson.annotations.SerializedName
 
-data class ResultSearchKeywordResponse(
-    val meta: BookMetaResponse,                // 책 메타데이터
-    val documents: List<BookResponse>          // 검색 결과
+data class KakaoBookResponse(
+    val meta: KakaoBookMetaResponse,                // 책 메타데이터
+    val documents: List<KakaoBookDocumentsResponse>          // 검색 결과
 )
 
-data class BookMetaResponse(
+data class KakaoBookMetaResponse(
     @SerializedName("total_count") val totalCount: Int?,
     @SerializedName("pageable_count") val pageableCount: Int?,
     @SerializedName("is_end") val isEnd: Boolean?
 )
 
-data class BookResponse(
+data class KakaoBookDocumentsResponse(
     @SerializedName("title") val title: String? = null,                      // 도서 제목
     @SerializedName("contents") val contents: String? = null,                // 도서 소개
     @SerializedName("url") val url: String? = null,                          // 도서 상세 URL

@@ -1,13 +1,6 @@
 package com.example.bookreport.data.entity
 
-import com.google.gson.annotations.SerializedName
 import java.io.Serializable
-
-
-data class KakaoBookResultEntity(
-    val meta: KakaoBookMeta?,                // 책 메타데이터
-    val documents: List<KakaoBook>          // 검색 결과
-)
 
 data class KakaoBookMeta(
     val totalCount: Int,
@@ -15,7 +8,7 @@ data class KakaoBookMeta(
     val isEnd: Boolean
 )
 
-data class KakaoBook(
+data class KakaoBookDocuments(
     val title: String,                      // 도서 제목
     val contents: String,                // 도서 소개
     val url: String,                          // 도서 상세 URL

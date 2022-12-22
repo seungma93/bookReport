@@ -19,8 +19,8 @@ class BookViewModel @Inject constructor(private val useCase: KakaoBookUseCase) :
     val bookLiveData: LiveData<BookListEntity>
         get() = _bookLiveData
      */
-    private val _bookState = MutableStateFlow<BookListEntity?>(null)
-    val bookState: StateFlow<BookListEntity?> = _bookState.asStateFlow()
+    private val _bookState = MutableStateFlow<BookListEntity.KakaoBookBookListEntity?>(null)
+    val bookState: StateFlow<BookListEntity.KakaoBookBookListEntity?> = _bookState.asStateFlow()
     private val _error = MutableLiveData<Throwable>()
     val error: LiveData<Throwable>
         get() = _error
@@ -29,7 +29,7 @@ class BookViewModel @Inject constructor(private val useCase: KakaoBookUseCase) :
                 kotlin.runCatching {
                     val result = useCase.searchBook(keyword, page)
                     val old = bookState.value?.entities.orEmpty()
-                    _bookState.value = BookListEntity(old + result.entities, result.meta)
+                    _bookState.value = BookListEntity.KakaoBookBookListEntity(old + result.entities, result.meta)
                 }.onFailure {
                     _error.value = it
                 }

@@ -1,26 +1,22 @@
 package com.example.bookreport.data.mapper
 
-import com.example.bookreport.BookMetaResponse
-import com.example.bookreport.BookResponse
-import com.example.bookreport.ResultSearchKeywordResponse
-import com.example.bookreport.data.entity.KakaoBook
-import com.example.bookreport.data.entity.KakaoBookMeta
-import com.example.bookreport.data.entity.KakaoBookResultEntity
+import com.example.bookreport.*
+import com.example.bookreport.data.entity.*
 
-fun ResultSearchKeywordResponse.toEntity() = KakaoBookResultEntity(
+fun KakaoBookResponse.toEntity() = BookEntity.KakaoBookEntity(
     meta = meta.toEntity(),
     documents = documents.map {
         it.toEntity()
     }
 )
 
-fun BookMetaResponse.toEntity() = KakaoBookMeta(
+fun KakaoBookMetaResponse.toEntity() = KakaoBookMeta(
     totalCount = totalCount ?: 0,
     pageableCount = pageableCount ?: 0,
     isEnd = isEnd ?: true
 )
 
-fun BookResponse.toEntity() = KakaoBook(
+fun KakaoBookDocumentsResponse.toEntity() = KakaoBookDocuments(
     title = title.orEmpty(),
     contents = contents.orEmpty(),
     url = url.orEmpty(),
