@@ -1,3 +1,4 @@
+/*
 package com.example.bookreport.di
 
 import android.content.Context
@@ -12,15 +13,15 @@ import dagger.Component
         Module.BookMarkDataSourceModule::class,
         Module.BookMarkRepositoryModule::class,
         Module.BookMarkUseCaseModule::class,
-        Module.KakaoBookDataSourceModule::class,
-        Module.KakaoBookRepositoryModule::class,
-        Module.KakaoBookUseCaseModule::class,
+      //  Module.KakaoBookDataSourceModule::class,
+      //  Module.KakaoBookRepositoryModule::class,
+     //   Module.KakaoBookUseCaseModule::class,
         Module.ReportDatabaseModule::class,
         Module.ReportDataSourceModule::class,
         Module.ReportRepositoryModule::class,
         Module.ReportUseCaseModule::class,
         Module.BookMarkViewModelModule::class,
-        Module.BookViewModelModule::class,
+     //   Module.BookViewModelModule::class,
         Module.ReportViewModelModule::class,
         Module.ViewModelFactoryModule::class
     ]
@@ -35,3 +36,4 @@ interface ReportWriteComponent {
     }
 }
 
+*/

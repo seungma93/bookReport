@@ -1,3 +1,4 @@
+/*
 package com.example.bookreport.di
 
 import android.content.Context
@@ -28,3 +29,4 @@ interface ReportListComponent {
     }
 }
 
+*/

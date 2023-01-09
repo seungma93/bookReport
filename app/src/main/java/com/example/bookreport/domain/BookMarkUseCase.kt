@@ -12,7 +12,7 @@ interface BookMarkUseCase{
     suspend fun loadBookMark(): BookMarkEntity
 }
 
-class BookMarkUseCaseImpl @Inject constructor(private val bookMarkRepository: BookMarkRepository): BookMarkUseCase {
+class BookMarkUseCaseImpl (private val bookMarkRepository: BookMarkRepository): BookMarkUseCase {
     override suspend fun saveBookMark(bookMark: BookMark) {
         bookMarkRepository.insertData(bookMark)
     }

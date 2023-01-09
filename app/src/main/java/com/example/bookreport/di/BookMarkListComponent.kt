@@ -1,3 +1,4 @@
+/*
 package com.example.bookreport.di
 
 import android.content.Context
@@ -23,4 +24,4 @@ interface BookMarkListComponent {
     interface Factory {
         fun create(@BindsInstance context: Context): BookMarkListComponent
     }
-}
+}*/

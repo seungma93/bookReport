@@ -1,17 +1,13 @@
 package com.example.bookreport.data.entity.response
 
 import com.google.gson.annotations.SerializedName
-import java.util.Date
+import java.util.*
 
 
 data class GoogleBooksResponse (
-    val meta: GoogleBooksMetaResponse,
-    @SerializedName("items") val items: List<GoogleBooksItemsResponse>
-)
-
-data class GoogleBooksMetaResponse(
-    @SerializedName("kind") val kind: String?,
-    @SerializedName("totalItems") val totalItems: Int?
+    @SerializedName("kind") val kind: String? = null,
+    @SerializedName("totalItems") val totalItems: Int? = null,
+    @SerializedName("items") val items: List<GoogleBooksItemsResponse> = emptyList()
 )
 
 data class GoogleBooksItemsResponse(
@@ -48,6 +44,11 @@ data class VolumeInfoResponse(
     @SerializedName("infoLink") val infoLink: String? = null,
     @SerializedName("canonicalVolumeLink") val canonicalVolumeLink: String? = null,
 )
+
+enum class Isbn(val value: String) {
+    TYPE10("ISBN_10"), TYPE13("ISBN_13")
+}
+
 data class IndustryIdentifiersResponse(
     @SerializedName("type") val type: String? = null,
     @SerializedName("identifier") val identifier: String? = null

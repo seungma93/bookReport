@@ -4,19 +4,18 @@ import com.example.bookreport.*
 import com.example.bookreport.data.entity.*
 
 fun KakaoBookResponse.toEntity() = BookEntity.KakaoBookEntity(
-    meta = meta.toEntity(),
-    documents = documents.map {
-        it.toEntity()
+    meta = meta.toMeta(),
+    items = documents.map {
+        it.toDocument()
     }
 )
 
-fun KakaoBookMetaResponse.toEntity() = KakaoBookMeta(
+fun KakaoBookMetaResponse.toMeta() = Meta.KakaoBookMeta(
     totalCount = totalCount ?: 0,
-    pageableCount = pageableCount ?: 0,
     isEnd = isEnd ?: true
 )
 
-fun KakaoBookDocumentsResponse.toEntity() = KakaoBookDocuments(
+fun KakaoBookDocumentsResponse.toDocument() = Documents(
     title = title.orEmpty(),
     contents = contents.orEmpty(),
     url = url.orEmpty(),
@@ -24,9 +23,5 @@ fun KakaoBookDocumentsResponse.toEntity() = KakaoBookDocuments(
     datetime = datetime.orEmpty(),
     authors = authors.orEmpty(),
     publisher = publisher.orEmpty(),
-    translators = translators.orEmpty(),
-    price = price ?: 0,
-    salePrice = sale_price ?: 0,
-    thumbnail = thumbnail.orEmpty(),
-    status = status.orEmpty()
+    thumbnail = thumbnail.orEmpty()
 )

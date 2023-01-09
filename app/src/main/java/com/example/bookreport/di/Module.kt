@@ -1,3 +1,4 @@
+/*
 package com.example.bookreport.di
 
 import android.content.Context
@@ -9,14 +10,17 @@ import com.example.bookreport.data.local.BookMarkLocalDataSource
 import com.example.bookreport.data.local.BookMarkLocalDataSourceImpl
 import com.example.bookreport.data.local.ReportLocalDataSource
 import com.example.bookreport.data.local.ReportLocalDataSourceImpl
-import com.example.bookreport.data.remote.KakaoRemoteDataSource
-import com.example.bookreport.domain.*
-import com.example.bookreport.network.KakaoBookRetrofitImpl
+import com.example.bookreport.domain.BookMarkUseCase
+import com.example.bookreport.domain.BookMarkUseCaseImpl
+import com.example.bookreport.domain.ReportUseCase
+import com.example.bookreport.domain.ReportUseCaseImpl
 import com.example.bookreport.presenter.viewmodel.BookMarkViewModel
-import com.example.bookreport.presenter.viewmodel.BookViewModel
 import com.example.bookreport.presenter.viewmodel.ReportViewModel
 import com.example.bookreport.presenter.viewmodel.ViewModelFactory
-import com.example.bookreport.repository.*
+import com.example.bookreport.repository.BookMarkRepository
+import com.example.bookreport.repository.BookMarkRepositoryImpl
+import com.example.bookreport.repository.ReportRepository
+import com.example.bookreport.repository.ReportRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -24,11 +28,13 @@ import dagger.multibindings.IntoMap
 
 class Module {
 
+    */
+/*
     @Module
     class KakaoBookDataSourceModule {
         @Provides
-        fun providesKakaoRemoteDataSource(): KakaoRemoteDataSource {
-            return KakaoBookRetrofitImpl.getRetrofit().create(KakaoRemoteDataSource::class.java)
+        fun providesKakaoRemoteDataSource(): KakaoBookRemoteDataSource {
+            return KakaoBookRetrofitImpl.getRetrofit().create(KakaoBookRemoteDataSource::class.java)
         }
     }
 
@@ -50,6 +56,7 @@ class Module {
             return KakaoBookUseCaseImpl(kakaoBookRepository, bookMarkRepository)
         }
     }
+*//*
 
 
     @Module
@@ -143,7 +150,8 @@ class Module {
             return BookMarkViewModel(useCase)
         }
     }
-
+*/
+/*
     @Module
     class BookViewModelModule {
         @Provides
@@ -153,4 +161,6 @@ class Module {
             return BookViewModel(useCase)
         }
     }
-}
+ *//*
+
+}*/

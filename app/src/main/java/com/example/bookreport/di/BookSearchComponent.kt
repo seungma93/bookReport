@@ -1,3 +1,4 @@
+/*
 package com.example.bookreport.di
 
 import android.content.Context
@@ -11,11 +12,11 @@ import dagger.Component
         Module.BookMarkDataSourceModule::class,
         Module.BookMarkRepositoryModule::class,
         Module.BookMarkUseCaseModule::class,
-        Module.KakaoBookDataSourceModule::class,
-        Module.KakaoBookRepositoryModule::class,
-        Module.KakaoBookUseCaseModule::class,
+    //    Module.KakaoBookDataSourceModule::class,
+    //    Module.KakaoBookRepositoryModule::class,
+    //    Module.KakaoBookUseCaseModule::class,
         Module.BookMarkViewModelModule::class,
-        Module.BookViewModelModule::class,
+    //    Module.BookViewModelModule::class,
         Module.ViewModelFactoryModule::class
     ]
 )
@@ -32,3 +33,4 @@ interface BookSearchComponent {
 
 
 
+*/

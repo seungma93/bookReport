@@ -13,7 +13,7 @@ interface BookMarkRepository {
     suspend fun selectData(): BookMarkEntity
 }
 
-class BookMarkRepositoryImpl @Inject constructor(
+class BookMarkRepositoryImpl (
     private val bookMarkLocalDataSource: BookMarkLocalDataSource,
 ) : BookMarkRepository {
     override suspend fun insertData(bookMark: BookMark) {

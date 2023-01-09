@@ -8,9 +8,3 @@ data class BookMark(
     @PrimaryKey
     val title: String
 )
-
-@Entity
-data class GoogleBooksBookMark(
-    @PrimaryKey
-    val title: String
-)

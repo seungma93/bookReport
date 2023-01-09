@@ -1,29 +1,27 @@
 package com.example.bookreport.data.entity
 
 import com.example.bookreport.data.entity.room.BookMark
+import org.w3c.dom.Document
 import java.io.Serializable
 
 
+sealed class BookListEntity {
+    abstract val entities: List<BookAndBookMark>
+    abstract val meta: Meta
 
-sealed class BookListEntity{
-    data class GoogleBooksBookListEntity (
-        val entities: List<BookAndBookMark.GoogleBooks>,
-        val meta: GoogleBooksMeta?
-    )
-    data class KakaoBookBookListEntity (
-        val entities: List<BookAndBookMark.KakaoBook>,
-        val meta: KakaoBookMeta?
-    )
+    data class KakaoBookListEntity(
+        override val entities: List<BookAndBookMark>,
+        override val meta: Meta.KakaoBookMeta
+    ) : BookListEntity()
+
+    data class GoogleBooksListEntity(
+        override val entities: List<BookAndBookMark>,
+        override val meta: Meta.GoogleBooksMeta
+    ) : BookListEntity()
 }
 
-sealed class BookAndBookMark {
-    data class KakaoBook(
-        val book: KakaoBookDocuments,
-        val bookMark: BookMark? = null
-    ) : Serializable
+data class BookAndBookMark(
+    val bookDocuments: Documents,
+    val bookMark: BookMark? = null
+) : Serializable
 
-    data class GoogleBooks(
-        val book: GoogleBooksItems,
-        val bookMark: BookMark? = null
-    ) : Serializable
-}

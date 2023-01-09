@@ -11,14 +11,23 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.bookreport.data.entity.room.BookMark
+import com.example.bookreport.data.entity.room.BookMarkDatabase
 import com.example.bookreport.data.entity.room.Report
+import com.example.bookreport.data.entity.room.ReportDatabase
+import com.example.bookreport.data.local.BookMarkLocalDataSourceImpl
+import com.example.bookreport.data.local.ReportLocalDataSourceImpl
 import com.example.bookreport.databinding.FragmentReportEditBinding
-import com.example.bookreport.di.DaggerReportEditComponent
+import com.example.bookreport.domain.BookMarkUseCaseImpl
+import com.example.bookreport.domain.ReportUseCaseImpl
 import com.example.bookreport.presenter.BookReport
 import com.example.bookreport.presenter.EndPoint
 import com.example.bookreport.presenter.viewmodel.BookMarkViewModel
-import com.example.bookreport.presenter.viewmodel.BookViewModel
+import com.example.bookreport.presenter.viewmodel.BookMarkViewModelFactory
 import com.example.bookreport.presenter.viewmodel.ReportViewModel
+import com.example.bookreport.presenter.viewmodel.ReportViewModelFactory
+import com.example.bookreport.repository.BookMarkRepositoryImpl
+import com.example.bookreport.repository.ReportRepository
+import com.example.bookreport.repository.ReportRepositoryImpl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -35,19 +44,39 @@ class ReportEditFragment : Fragment() {
     private var _binding: FragmentReportEditBinding? = null
     private val binding get() = _binding!!
     private val report get() = requireArguments().getSerializable(ReportEditFragment.REPORT_KEY) as Report
-
+/*
     @Inject
     lateinit var reportViewModelFactory: ViewModelProvider.Factory
     private val reportViewModel: ReportViewModel by activityViewModels { reportViewModelFactory }
     @Inject
     lateinit var bookMarkViewModelFactory: ViewModelProvider.Factory
     private val bookMarkViewModel: BookMarkViewModel by activityViewModels { bookMarkViewModelFactory }
+
     @Inject
     lateinit var bookListViewModelFactory: ViewModelProvider.Factory
     private val bookListViewModel: BookViewModel by activityViewModels { bookListViewModelFactory }
+*/
+
+    private val bookMarkViewModel: BookMarkViewModel by lazy {
+        val bookMarkDatabase = BookMarkDatabase.getInstance(requireContext())
+        val bookMarkLocalDataSourceImpl = BookMarkLocalDataSourceImpl(bookMarkDatabase!!)
+        val bookMarkRepositoryImpl = BookMarkRepositoryImpl(bookMarkLocalDataSourceImpl)
+        val bookMarkUseCaseImpl = BookMarkUseCaseImpl(bookMarkRepositoryImpl)
+        val factory = BookMarkViewModelFactory(bookMarkUseCaseImpl)
+        ViewModelProvider(requireActivity(), factory).get(BookMarkViewModel::class.java)
+    }
+
+    private val reportViewModel: ReportViewModel by lazy {
+        val reportDatabase = ReportDatabase.getInstance(requireContext())
+        val reportLocalDataSourceImpl = ReportLocalDataSourceImpl(reportDatabase!!)
+        val reportRepositoryImpl = ReportRepositoryImpl(reportLocalDataSourceImpl)
+        val reportUseCaseImpl = ReportUseCaseImpl(reportRepositoryImpl)
+        val factory = ReportViewModelFactory(reportUseCaseImpl)
+        ViewModelProvider(requireActivity(), factory).get(ReportViewModel::class.java)
+    }
 
     override fun onAttach(context: Context) {
-        DaggerReportEditComponent.factory().create(context).inject(this)
+        //DaggerReportEditComponent.factory().create(context).inject(this)
         super.onAttach(context)
     }
 
@@ -92,7 +121,7 @@ class ReportEditFragment : Fragment() {
                 if (btnBookmark.isSelected.not()) {
                     CoroutineScope(Dispatchers.IO).launch {
                         bookMarkViewModel.saveBookMark(bookMark = BookMark(report.book.title))
-                        bookListViewModel.refreshKey()
+                        //bookListViewModel.refreshKey()
                         withContext(Dispatchers.Main) {
                             btnBookmark.isSelected = true
                         }
@@ -100,7 +129,7 @@ class ReportEditFragment : Fragment() {
                 } else {
                     CoroutineScope(Dispatchers.IO).launch {
                         bookMarkViewModel.deleteBookMark(bookMark = BookMark(report.book.title))
-                        bookListViewModel.refreshKey()
+                        //bookListViewModel.refreshKey()
                         withContext(Dispatchers.Main) {
                             btnBookmark.isSelected = false
                         }

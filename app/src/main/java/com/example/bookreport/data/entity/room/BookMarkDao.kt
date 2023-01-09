@@ -22,24 +22,3 @@ interface BookMarkDao {
     suspend fun deleteAll()
      */
 }
-
-@Dao
-interface GoogleBooksBookMarkDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(bookMark: GoogleBooksBookMark)
-
-    @Update
-    suspend fun update(bookMark: GoogleBooksBookMark)
-
-    @Delete
-    suspend fun delete(bookMark: GoogleBooksBookMark)
-
-
-
-    @Query("SELECT * FROM GoogleBooksBookMark")
-    suspend fun getAll(): List<GoogleBooksBookMark>
-/*
-    @Query("DELETE FROM User ")
-    suspend fun deleteAll()
-     */
-}

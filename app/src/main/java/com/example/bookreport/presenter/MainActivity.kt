@@ -13,7 +13,7 @@ import com.example.bookreport.presenter.fragment.*
 
 
 sealed class EndPoint {
-    data class BookSearch(val sticky: Int) : EndPoint()
+    data class BookSearch(val bookType: String) : EndPoint()
     data class ReportWrite(val bookAndBookMark: BookAndBookMark) : EndPoint()
     data class ReportList(val sticky: Int) : EndPoint()
     data class BookMarkList(val sticky: Int): EndPoint()
@@ -78,6 +78,8 @@ class MainActivity : AppCompatActivity(), BookReport {
             when (endPoint) {
                 is EndPoint.BookSearch -> {
                     val fragment = BookSearchFragment()
+                    it.putSerializable(ReportListFragment.BOOK_TYPE_KEY, endPoint.bookType)
+                    fragment.arguments = it
                     setFragment(fragment)
                 }
                 is EndPoint.ReportWrite -> {

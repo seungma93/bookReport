@@ -104,14 +104,16 @@ class BookListAdapter(
             }
         }
 
-        // 아이템 바인드 펑션
+        // 아이템 바인드
         fun bind(entity: BookAndBookMark, position: Int) = with(entity) {
             this@ViewHolder.book = this
             binding.apply {
                 bookNo.text = position.toString()
-                bookTitle.text = book.title
-                bookContents.text = book.contents
-                Glide.with(itemView.context).load(book.thumbnail).into(bookThumbnail)
+                bookTitle.text = bookDocuments.title
+                bookContents.text = bookDocuments.title
+                Glide.with(itemView.context)
+                    .load(bookDocuments.thumbnail)
+                    .into(bookThumbnail)
                 btnBookmark.isSelected = bookMark != null
                 Log.v("아이템", position.toString())
             }
