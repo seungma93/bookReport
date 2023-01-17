@@ -6,9 +6,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.compose.runtime.DisposableEffect
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.bookreport.data.entity.Meta
 import com.example.bookreport.data.entity.room.BookMark
 import com.example.bookreport.data.entity.room.BookMarkDatabase
@@ -33,20 +37,21 @@ import com.example.bookreport.repository.BookMarkRepositoryImpl
 import com.example.bookreport.repository.BookRepositoryImpl
 import com.example.bookreport.repository.GoogleBooksDataSourceToRepositoryImpl
 import com.example.bookreport.repository.KakaoBookDataSourceToRepositoryImpl
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 class BookSearchFragment : Fragment() {
     companion object {
-        const val KAKAO_BOOK_KEY = "KAKAO_BOOK_KEY"
+        const val BOOK_AND_BOOKMARK = "BOOK_AND_BOOKMARK"
     }
 
     private var _binding: FragmentBookSearchBinding? = null
     private val binding get() = _binding!!
     private var adapter: BookListAdapter? = null
 
-    //private val onScrollListener: RecyclerView.OnScrollListener = OnScrollListener()
+    private val onScrollListener: RecyclerView.OnScrollListener = OnScrollListener()
     private var bookMetaData: Meta? = null
     private var keyword: String = ""
     private val bookType get() = requireArguments().getSerializable(ReportListFragment.BOOK_TYPE_KEY) as String
@@ -82,7 +87,7 @@ class BookSearchFragment : Fragment() {
                 val kakaoBookRepositoryImpl =
                     BookRepositoryImpl(kakaoBookDataSourceToRepositoryImpl, bookMarkRepositoryImpl)
                 val kakaoBookUseCaseImpl =
-                    BookUseCaseImpl(kakaoBookRepositoryImpl)
+                    BookUseCaseImpl(kakaoBookRepositoryImpl, bookMarkRepositoryImpl)
                 val factory = BookViewModelFactory(kakaoBookUseCaseImpl)
                 ViewModelProvider(this, factory).get(BookListViewModel::class.java)
             }
@@ -98,7 +103,7 @@ class BookSearchFragment : Fragment() {
                         bookMarkRepositoryImpl
                     )
                 val googleBooksUseCaseImpl =
-                    BookUseCaseImpl(googleBooksRepositoryImpl)
+                    BookUseCaseImpl(googleBooksRepositoryImpl, bookMarkRepositoryImpl)
                 val factory = BookViewModelFactory(googleBooksUseCaseImpl)
                 ViewModelProvider(this, factory).get(BookListViewModel::class.java)
             }
@@ -135,19 +140,19 @@ class BookSearchFragment : Fragment() {
                 true -> {
                     lifecycleScope.launch {
                         bookMarkViewModel.deleteBookMark(bookMark = BookMark(bookAndBookMark.bookDocuments.title))
-                        bookViewModel.refreshKey()
+                        //bookViewModel.refreshKey()
                     }
                 }
                 false -> {
                     lifecycleScope.launch {
                         bookMarkViewModel.saveBookMark(bookMark = BookMark(bookAndBookMark.bookDocuments.title))
-                        bookViewModel.refreshKey()
+                        //bookViewModel.refreshKey()
                     }
                 }
             }
         })
         subscribe()
-        //initScrollListener()
+        initScrollListener()
         binding.apply {
             bookList.adapter = adapter
             btnSearch.setOnClickListener {
@@ -169,7 +174,7 @@ class BookSearchFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         adapter = null
-        //binding.bookList.removeOnScrollListener(onScrollListener)
+        binding.bookList.removeOnScrollListener(onScrollListener)
         _binding = null
         Log.v("BookSearchFragment", "onDestroyView")
     }
@@ -199,29 +204,26 @@ class BookSearchFragment : Fragment() {
                     bookMetaData = it.meta
                 }
                 Log.v("subscribe", "구독")
+                Log.v("subscribe", it.entities.size.toString())
                 adapter?.setItems(it.entities)
             }
         }
     }
 
-    /*
-        // 스크롤 리스너 -> 뷰의 마지막에 닿았을때 동작
-        private fun initScrollListener() {
-            binding.bookList.addOnScrollListener(onScrollListener)
-        }
-    */
     private fun moreItems() {
         val keyword = binding.edit.text.toString()
-        val page = ((adapter?.itemCount)?.div(10) ?: 10) + 1
+        val page = ((adapter?.itemCount)?.div(10) ?: 1) + 1
         Log.v("페이지", page.toString())
         lifecycleScope.launch {
-            bookViewModel.insertKey(keyword, page)
-
-
+            bookViewModel.insertNewKey(keyword, page)
         }
     }
 
-    /*
+    // 스크롤 리스너 -> 뷰의 마지막에 닿았을때 동작
+    private fun initScrollListener() {
+        binding.bookList.addOnScrollListener(onScrollListener)
+    }
+
     private inner class OnScrollListener : RecyclerView.OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
@@ -231,7 +233,7 @@ class BookSearchFragment : Fragment() {
 
             if (itemCount == lastVisibleItemPosition) {
                 Log.v("BookSearchFragment", "onScrolled")
-                if(bookMetaData != null){
+                if (bookMetaData != null) {
                     if (bookMetaData?.isEnd == false) {
                         moreItems()
                     } else {
@@ -241,12 +243,9 @@ class BookSearchFragment : Fragment() {
                         }
                     }
                 }
-
             }
         }
     }
-
-     */
 
 }
 

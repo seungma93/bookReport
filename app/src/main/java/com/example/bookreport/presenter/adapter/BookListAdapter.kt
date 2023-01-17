@@ -110,12 +110,13 @@ class BookListAdapter(
             binding.apply {
                 bookNo.text = position.toString()
                 bookTitle.text = bookDocuments.title
+                bookIsbn.text = bookDocuments.isbn
                 bookContents.text = bookDocuments.title
                 Glide.with(itemView.context)
                     .load(bookDocuments.thumbnail)
                     .into(bookThumbnail)
                 btnBookmark.isSelected = bookMark != null
-                Log.v("아이템", position.toString())
+                Log.v("bind", bookMark?.title.orEmpty())
             }
         }
     }

@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity(), BookReport {
                 }
                 is EndPoint.ReportWrite -> {
                     val fragment = ReportWriteFragment()
-                    it.putSerializable(BookSearchFragment.KAKAO_BOOK_KEY, endPoint.bookAndBookMark)
+                    it.putSerializable(BookSearchFragment.BOOK_AND_BOOKMARK, endPoint.bookAndBookMark)
                     fragment.arguments = it
                     setFragment(fragment)
                 }

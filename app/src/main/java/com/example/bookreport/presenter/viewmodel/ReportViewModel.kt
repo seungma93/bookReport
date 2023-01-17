@@ -1,5 +1,6 @@
 package com.example.bookreport.presenter.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -28,7 +29,9 @@ class ReportViewModel (private val useCase: ReportUseCase) : ViewModel() {
         kotlin.runCatching {
             useCase.saveReport(report)
         }.onFailure {
-            _error.value = it
+            Log.v("ReportViewModel", "실패")
+            //_error.value = it
+            it.printStackTrace()
         }
     }
 

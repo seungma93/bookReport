@@ -29,7 +29,9 @@ class BookMarkViewModel (private val useCase: BookMarkUseCase) : ViewModel() {
             useCase.deleteBookMark(bookMark)
     }
     suspend fun loadBookMark() = viewModelScope.launch {
-            _bookMarkState.value = useCase.loadBookMark()
+            useCase.loadBookMark().collect() {
+                _bookMarkState.value = BookMarkEntity(it)
+            }
     }
 }
 

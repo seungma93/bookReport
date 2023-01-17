@@ -46,7 +46,7 @@ data class VolumeInfoResponse(
 )
 
 enum class Isbn(val value: String) {
-    TYPE10("ISBN_10"), TYPE13("ISBN_13")
+    TYPE10("ISBN_10"), TYPE13("ISBN_13"), OTHER("OTHER")
 }
 
 data class IndustryIdentifiersResponse(

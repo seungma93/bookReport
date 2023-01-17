@@ -93,15 +93,6 @@ class ReportListFragment : Fragment() {
                 val endPoint = EndPoint.BookMarkList(0)
                 (requireActivity() as? BookReport)?.navigateFragment(endPoint)
             }
-            /*
-            btnTest.setOnClickListener {
-                val retrofit = GoogleBooksRetrofitImpl.getRetrofit().create(GoogleBooksRemoteDataSource::class.java)
-                val repository = GoogleBooksRepositoryImpl(retrofit)
-                lifecycleScope.launch{
-                    //repository.getBooksEntity("ants")
-                }
-            }
-             */
         }
     }
 
@@ -134,13 +125,15 @@ class ReportListFragment : Fragment() {
             ObjectAnimator.ofFloat(binding.btnFabSearchKakao, "translationY", 0f).apply { start() }
             ObjectAnimator.ofFloat(binding.btnFabSearchGoogle, "translationY", 0f).apply { start() }
             ObjectAnimator.ofFloat(binding.btnFabBookmark, "translationY", 0f).apply { start() }
-            binding.btnFloating.setImageResource(R.drawable.btn_menu)
+            binding.btnFloating.setIconResource(R.drawable.btn_menu)
+            binding.btnFloating.text = "menu"
             false
         } else {
             ObjectAnimator.ofFloat(binding.btnFabSearchKakao, "translationY", -200f).apply { start() }
             ObjectAnimator.ofFloat(binding.btnFabSearchGoogle, "translationY", -400f).apply { start() }
             ObjectAnimator.ofFloat(binding.btnFabBookmark, "translationY", -600f).apply { start() }
-            binding.btnFloating.setImageResource(R.drawable.btn_close)
+            binding.btnFloating.setIconResource(R.drawable.btn_close)
+            binding.btnFloating.text = "close"
             true
         }
     }

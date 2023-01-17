@@ -1,9 +1,7 @@
 package com.example.bookreport.data.mapper
 
 import android.util.Log
-import com.example.bookreport.data.entity.BookEntity
-import com.example.bookreport.data.entity.Documents
-import com.example.bookreport.data.entity.Meta
+import com.example.bookreport.data.entity.*
 import com.example.bookreport.data.entity.response.GoogleBooksItemsResponse
 import com.example.bookreport.data.entity.response.GoogleBooksResponse
 import com.example.bookreport.data.entity.response.Isbn
@@ -20,7 +18,6 @@ fun GoogleBooksResponse.toEntity(): BookEntity.GoogleBooksEntity {
         }
     )
 }
-
 
 fun GoogleBooksItemsResponse.toDocument(): Documents {
     Log.v("toDocuments", "시작")
@@ -45,4 +42,9 @@ fun GoogleBooksItemsResponse.toDocument(): Documents {
     return a
 }
 
-
+fun List<BookAndBookMark>.toBookMark(entity: BookListEntity): BookListEntity {
+    return when(entity){
+        is BookListEntity.KakaoBookListEntity -> BookListEntity.KakaoBookListEntity(this, entity.meta)
+        is BookListEntity.GoogleBooksListEntity -> BookListEntity.GoogleBooksListEntity(this, entity.meta)
+    }
+}

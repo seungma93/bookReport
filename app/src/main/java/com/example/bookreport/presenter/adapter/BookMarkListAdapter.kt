@@ -16,7 +16,7 @@ class BookMarkListAdapter : RecyclerView.Adapter<BookMarkListAdapter.ViewHolder>
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(datalist[position])
+        holder.bind(datalist[position], position)
     }
 
     override fun getItemCount(): Int {
@@ -25,9 +25,9 @@ class BookMarkListAdapter : RecyclerView.Adapter<BookMarkListAdapter.ViewHolder>
 
     class ViewHolder(private val binding: BookmarkListItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(bookMark: BookMark) {
+        fun bind(bookMark: BookMark, position: Int) {
+            binding.bookNo.text = position.toString()
             binding.bookTitle.text = bookMark.title
-
         }
     }
 

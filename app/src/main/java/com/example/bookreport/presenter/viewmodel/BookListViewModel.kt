@@ -9,15 +9,17 @@ import com.example.bookreport.data.entity.BookAndBookMark
 import com.example.bookreport.data.entity.BookEntity
 import com.example.bookreport.data.entity.BookListEntity
 import com.example.bookreport.data.entity.Meta
+import com.example.bookreport.data.mapper.toBookMark
 import com.example.bookreport.domain.BookUseCase
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-class BookListViewModel (private val useCase: BookUseCase) : ViewModel() {
+class BookListViewModel(private val useCase: BookUseCase) : ViewModel() {
     /*
     private val _bookLiveData = MutableLiveData<BookListEntity>()
     val bookLiveData: LiveData<BookListEntity>
@@ -30,23 +32,30 @@ class BookListViewModel (private val useCase: BookUseCase) : ViewModel() {
         get() = _error
 
     suspend fun insertKey(keyword: String, page: Int) {
-                kotlin.runCatching {
-                    val result = useCase.searchBook(keyword, page)
-                    val old = bookState.value?.entities.orEmpty()
-                    _bookState.value = (old + result.entities).toBookMark(result)
-                    //_bookState.value = BookListEntity.KakaoBookListEntity(old + result.entities, result.meta)
-                }.onFailure {
-                    _error.value = it
-                }
+        kotlin.runCatching {
+            useCase.searchBook(keyword, page).collect {
+                _bookState.value = it
+            }
+            //_bookState.value = BookListEntity.KakaoBookListEntity(old + result.entities, result.meta)
+        }.onFailure {
+            _error.value = it
+        }
     }
 
-    suspend fun insertNewKey(keyword: String, page: Int) {
-                kotlin.runCatching {
-                    _bookState.value = useCase.searchBook(keyword, page)
-                    Log.v("BookListViewModel", "동작")
-                }.onFailure {
-                    _error.value = it
+    fun insertNewKey(keyword: String, page: Int) {
+        Log.v("BookListViewModel", "시작")
+        kotlin.runCatching {
+            viewModelScope.launch {
+                useCase.searchBook(keyword, page).collect {
+                    _bookState.value = it
+                    it.entities.map { Log.v("BookListViewModel", it.bookDocuments.title) }
+                    it.entities.map { Log.v("북마크", it.bookMark?.title.orEmpty()) }
                 }
+            }
+        }.onFailure {
+            it.printStackTrace()
+        }
+
     }
 
     suspend fun refreshKey() = viewModelScope.launch {
@@ -55,15 +64,9 @@ class BookListViewModel (private val useCase: BookUseCase) : ViewModel() {
             _bookState.value = useCase.refreshBookMark(old)
         }
     }
+
 }
 
-// mapper
 
-fun List<BookAndBookMark>.toBookMark(entity: BookListEntity): BookListEntity{
-    return when(entity){
-        is BookListEntity.KakaoBookListEntity -> BookListEntity.KakaoBookListEntity(this, entity.meta)
-        is BookListEntity.GoogleBooksListEntity -> BookListEntity.GoogleBooksListEntity(this, entity.meta)
-    }
-}
 
 

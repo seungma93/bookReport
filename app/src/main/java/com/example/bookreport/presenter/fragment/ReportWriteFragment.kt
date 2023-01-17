@@ -42,7 +42,7 @@ import javax.inject.Inject
 class ReportWriteFragment : Fragment() {
     private var _binding: FragmentReportWriteBinding? = null
     private val binding get() = _binding!!
-    private val kakaoBook get() = requireArguments().getSerializable(BookSearchFragment.KAKAO_BOOK_KEY) as BookAndBookMark
+    private val bookAndBookMark get() = requireArguments().getSerializable(BookSearchFragment.BOOK_AND_BOOKMARK) as BookAndBookMark
 
     /*
     @Inject
@@ -98,13 +98,14 @@ class ReportWriteFragment : Fragment() {
             }
         }
         binding.apply {
-            bookTitle.text = kakaoBook.bookDocuments.title
-            bookContents.text = kakaoBook.bookDocuments.contents
-            Glide.with(requireContext()).load(kakaoBook.bookDocuments.thumbnail).into(bookThumbnail)
+            bookTitle.text = bookAndBookMark.bookDocuments.title
+            bookContents.text = bookAndBookMark.bookDocuments.contents
+            Glide.with(requireContext()).load(bookAndBookMark.bookDocuments.thumbnail)
+                .into(bookThumbnail)
 
             btnReportSubmit.setOnClickListener {
                 val report = Report(
-                    kakaoBook.bookDocuments,
+                    bookAndBookMark.bookDocuments,
                     reportContext.text.toString()
                 )
 
@@ -120,7 +121,7 @@ class ReportWriteFragment : Fragment() {
             btnBookmark.setOnClickListener {
                 if (!(btnBookmark.isSelected)) {
                     CoroutineScope(Dispatchers.IO).launch {
-                        bookMarkViewModel.saveBookMark(bookMark = BookMark(kakaoBook.bookDocuments.title))
+                        bookMarkViewModel.saveBookMark(bookMark = BookMark(bookAndBookMark.bookDocuments.title))
                         //bookListViewModel.refreshKey()
                         withContext(Dispatchers.Main) {
                             btnBookmark.isSelected = true
@@ -129,7 +130,7 @@ class ReportWriteFragment : Fragment() {
 
                 } else {
                     CoroutineScope(Dispatchers.IO).launch {
-                        bookMarkViewModel.deleteBookMark(bookMark = BookMark(kakaoBook.bookDocuments.title))
+                        bookMarkViewModel.deleteBookMark(bookMark = BookMark(bookAndBookMark.bookDocuments.title))
                         //bookListViewModel.refreshKey()
                         withContext(Dispatchers.IO) {
                             btnBookmark.isSelected = false
@@ -160,7 +161,7 @@ class ReportWriteFragment : Fragment() {
         bookMarkViewModel.bookMarkState.filterNotNull().collectLatest {
             binding.btnBookmark.isSelected = false
             it.bookMarks.map {
-                binding.btnBookmark.isSelected = it.title == kakaoBook.bookDocuments.title
+                binding.btnBookmark.isSelected = it.title == bookAndBookMark.bookDocuments.title
             }
         }
     }

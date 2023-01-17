@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -26,7 +25,6 @@ import com.example.bookreport.presenter.viewmodel.BookMarkViewModelFactory
 import com.example.bookreport.presenter.viewmodel.ReportViewModel
 import com.example.bookreport.presenter.viewmodel.ReportViewModelFactory
 import com.example.bookreport.repository.BookMarkRepositoryImpl
-import com.example.bookreport.repository.ReportRepository
 import com.example.bookreport.repository.ReportRepositoryImpl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,7 +32,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 class ReportEditFragment : Fragment() {
     companion object {
@@ -121,7 +118,6 @@ class ReportEditFragment : Fragment() {
                 if (btnBookmark.isSelected.not()) {
                     CoroutineScope(Dispatchers.IO).launch {
                         bookMarkViewModel.saveBookMark(bookMark = BookMark(report.book.title))
-                        //bookListViewModel.refreshKey()
                         withContext(Dispatchers.Main) {
                             btnBookmark.isSelected = true
                         }
@@ -129,7 +125,6 @@ class ReportEditFragment : Fragment() {
                 } else {
                     CoroutineScope(Dispatchers.IO).launch {
                         bookMarkViewModel.deleteBookMark(bookMark = BookMark(report.book.title))
-                        //bookListViewModel.refreshKey()
                         withContext(Dispatchers.Main) {
                             btnBookmark.isSelected = false
                         }
@@ -155,7 +150,6 @@ class ReportEditFragment : Fragment() {
         }
     }
  */
-
     private fun subscribe() {
         lifecycleScope.launchWhenStarted {
             bookMarkViewModel.bookMarkState.filterNotNull().collectLatest { bookMarkEntity ->
