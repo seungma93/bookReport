@@ -96,6 +96,7 @@ class BookListAdapter(
             }
             binding.btnBookmark.setOnClickListener {
                 book?.let {
+                    Log.v("BookListAdapter", "onClick 실행")
                     when (binding.btnBookmark.isSelected) {
                         true -> bookMarkClick(it, true)
                         false -> bookMarkClick(it, false)

@@ -4,26 +4,23 @@ import com.example.bookreport.data.entity.BookEntity
 import com.example.bookreport.data.mapper.toEntity
 import com.example.bookreport.data.remote.GoogleBooksRemoteDataSource
 import com.example.bookreport.data.remote.KakaoBookRemoteDataSource
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.MutableStateFlow
 
 
 interface DataSourceToRepository {
-    suspend fun toRepository(keyword: String, page: Int): Flow<BookEntity>
+    suspend fun toRepository(keyword: String, page: Int): MutableStateFlow<BookEntity?>
 }
 
 class KakaoBookDataSourceToRepositoryImpl(
     private val kakaoBookRemoteDataSource: KakaoBookRemoteDataSource
 ) : DataSourceToRepository {
+    private val bookEntityStateFlow = MutableStateFlow<BookEntity?>(null)
 
-    override suspend fun toRepository(keyword: String, page: Int): Flow<BookEntity> {
+    override suspend fun toRepository(keyword: String, page: Int): MutableStateFlow<BookEntity?> {
+
         kakaoBookRemoteDataSource.getSearchKeyword(keyword, page).toEntity().run {
-            val dataSourceFlow: Flow<BookEntity> = flow {
-                emit(copy(items = items.filterNot { it.isbn.isNullOrEmpty() }))
-            }
-            return dataSourceFlow
+            bookEntityStateFlow.value = copy(items = items.filterNot { it.isbn.isEmpty() })
+            return bookEntityStateFlow
         }
     }
 }
@@ -31,15 +28,17 @@ class KakaoBookDataSourceToRepositoryImpl(
 class GoogleBooksDataSourceToRepositoryImpl(
     private val googleBooksRemoteDataSource: GoogleBooksRemoteDataSource
 ) : DataSourceToRepository {
+    private val bookEntityStateFlow = MutableStateFlow<BookEntity?>(null)
 
-    override suspend fun toRepository(keyword: String, page: Int): Flow<BookEntity> {
+    override suspend fun toRepository(keyword: String, page: Int): MutableStateFlow<BookEntity?> {
+
         val startIndex = 0 + 10 * (page - 1)
         googleBooksRemoteDataSource.getSearchKeyword(keyword, startIndex, "partial").toEntity()
             .run {
-                val dataSourceFlow: Flow<BookEntity> = flow {
-                    emit(copy(items = items.filterNot { it.isbn.isNullOrEmpty() }))
-                }
-                return dataSourceFlow
+                bookEntityStateFlow.value =
+                    copy(items = items.filterNot { it.isbn.isEmpty() })
+                return bookEntityStateFlow
             }
     }
 }
+

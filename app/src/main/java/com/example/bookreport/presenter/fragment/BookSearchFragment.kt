@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.compose.runtime.DisposableEffect
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -37,7 +36,6 @@ import com.example.bookreport.repository.BookMarkRepositoryImpl
 import com.example.bookreport.repository.BookRepositoryImpl
 import com.example.bookreport.repository.GoogleBooksDataSourceToRepositoryImpl
 import com.example.bookreport.repository.KakaoBookDataSourceToRepositoryImpl
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -85,7 +83,7 @@ class BookSearchFragment : Fragment() {
                 val kakaoBookDataSourceToRepositoryImpl =
                     KakaoBookDataSourceToRepositoryImpl(kakaoRemoteDataSourceImpl)
                 val kakaoBookRepositoryImpl =
-                    BookRepositoryImpl(kakaoBookDataSourceToRepositoryImpl, bookMarkRepositoryImpl)
+                    BookRepositoryImpl(kakaoBookDataSourceToRepositoryImpl)
                 val kakaoBookUseCaseImpl =
                     BookUseCaseImpl(kakaoBookRepositoryImpl, bookMarkRepositoryImpl)
                 val factory = BookViewModelFactory(kakaoBookUseCaseImpl)
@@ -99,8 +97,7 @@ class BookSearchFragment : Fragment() {
                     GoogleBooksDataSourceToRepositoryImpl(googleBooksRemoteDataSource)
                 val googleBooksRepositoryImpl =
                     BookRepositoryImpl(
-                        googleBooksDataSourceToRepositoryImpl,
-                        bookMarkRepositoryImpl
+                        googleBooksDataSourceToRepositoryImpl
                     )
                 val googleBooksUseCaseImpl =
                     BookUseCaseImpl(googleBooksRepositoryImpl, bookMarkRepositoryImpl)
@@ -110,7 +107,6 @@ class BookSearchFragment : Fragment() {
             else -> throw IllegalArgumentException()
         }
     }
-
 
     override fun onAttach(context: Context) {
         //DaggerBookSearchComponent.factory().create(context).inject(this)
@@ -131,28 +127,24 @@ class BookSearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.v("BookSearchFregment", "넘어온 검색 타입" + bookType)
         adapter = BookListAdapter({
-            //Toast.makeText(requireContext(), "참가자 ${KakaoBook.title} 입니다.", Toast.LENGTH_SHORT).show()
-            val endPoint =
-                EndPoint.ReportWrite(bookAndBookMark = it)
+            val endPoint = EndPoint.ReportWrite(bookAndBookMark = it)
             (requireActivity() as? BookReport)?.navigateFragment(endPoint)
         }, { bookAndBookMark, isBookMark ->
             when (isBookMark) {
                 true -> {
+                    Log.v("BookSearchFragment", "삭제 람다")
                     lifecycleScope.launch {
                         bookMarkViewModel.deleteBookMark(bookMark = BookMark(bookAndBookMark.bookDocuments.title))
-                        //bookViewModel.refreshKey()
                     }
                 }
                 false -> {
+                    Log.v("BookSearchFragment", "세이브 람다")
                     lifecycleScope.launch {
                         bookMarkViewModel.saveBookMark(bookMark = BookMark(bookAndBookMark.bookDocuments.title))
-                        //bookViewModel.refreshKey()
                     }
                 }
             }
         })
-        subscribe()
-        initScrollListener()
         binding.apply {
             bookList.adapter = adapter
             btnSearch.setOnClickListener {
@@ -164,6 +156,8 @@ class BookSearchFragment : Fragment() {
                 }
             }
         }
+        subscribe()
+        initScrollListener()
     }
 
     override fun onPause() {
@@ -215,7 +209,7 @@ class BookSearchFragment : Fragment() {
         val page = ((adapter?.itemCount)?.div(10) ?: 1) + 1
         Log.v("페이지", page.toString())
         lifecycleScope.launch {
-            bookViewModel.insertNewKey(keyword, page)
+            bookViewModel.insertKey(keyword, page)
         }
     }
 
@@ -231,7 +225,7 @@ class BookSearchFragment : Fragment() {
                 (recyclerView.layoutManager as LinearLayoutManager?)!!.findLastVisibleItemPosition()
             val itemCount = (adapter?.itemCount?.minus(1) ?: 10)
 
-            if (itemCount == lastVisibleItemPosition) {
+            if (!binding.bookList.canScrollVertically(1) && itemCount == lastVisibleItemPosition) {
                 Log.v("BookSearchFragment", "onScrolled")
                 if (bookMetaData != null) {
                     if (bookMetaData?.isEnd == false) {
