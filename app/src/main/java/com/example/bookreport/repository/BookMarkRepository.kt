@@ -15,7 +15,7 @@ interface BookMarkRepository {
     suspend fun selectData(): Flow<List<BookMark>>
 }
 
-class BookMarkRepositoryImpl (
+class BookMarkRepositoryImpl @Inject constructor(
     private val bookMarkLocalDataSource: BookMarkLocalDataSource,
 ) : BookMarkRepository {
     override suspend fun insertData(bookMark: BookMark) {

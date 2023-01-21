@@ -8,37 +8,23 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bookreport.data.entity.Meta
 import com.example.bookreport.data.entity.room.BookMark
-import com.example.bookreport.data.entity.room.BookMarkDatabase
-import com.example.bookreport.data.local.BookMarkLocalDataSourceImpl
-import com.example.bookreport.data.remote.GoogleBooksRemoteDataSource
-import com.example.bookreport.data.remote.KakaoBookRemoteDataSource
 import com.example.bookreport.databinding.FragmentBookSearchBinding
-import com.example.bookreport.domain.BookMarkUseCaseImpl
-import com.example.bookreport.domain.BookUseCaseImpl
-import com.example.bookreport.network.GoogleBooksRetrofitImpl
-import com.example.bookreport.network.KakaoBookRetrofitImpl
 import com.example.bookreport.presenter.BookReport
 import com.example.bookreport.presenter.EndPoint
 import com.example.bookreport.presenter.adapter.BookListAdapter
-import com.example.bookreport.presenter.fragment.ReportListFragment.Companion.GOOGLE_KEY
-import com.example.bookreport.presenter.fragment.ReportListFragment.Companion.KAKAO_KEY
 import com.example.bookreport.presenter.viewmodel.BookListViewModel
 import com.example.bookreport.presenter.viewmodel.BookMarkViewModel
-import com.example.bookreport.presenter.viewmodel.BookMarkViewModelFactory
-import com.example.bookreport.presenter.viewmodel.BookViewModelFactory
-import com.example.bookreport.repository.BookMarkRepositoryImpl
-import com.example.bookreport.repository.BookRepositoryImpl
-import com.example.bookreport.repository.GoogleBooksDataSourceToRepositoryImpl
-import com.example.bookreport.repository.KakaoBookDataSourceToRepositoryImpl
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class BookSearchFragment : Fragment() {
     companion object {
@@ -54,14 +40,14 @@ class BookSearchFragment : Fragment() {
     private var keyword: String = ""
     private val bookType get() = requireArguments().getSerializable(ReportListFragment.BOOK_TYPE_KEY) as String
 
-    /*
+
     @Inject
     lateinit var bookListViewModelFactory: ViewModelProvider.Factory
-    private val viewModel: BookViewModel by activityViewModels { bookListViewModelFactory }
+    private val bookListViewModel: BookListViewModel by viewModels { bookListViewModelFactory }
     @Inject
     lateinit var bookMarkViewModelFactory: ViewModelProvider.Factory
-    private val bookMarkViewModel: BookMarkViewModel by activityViewModels { bookMarkViewModelFactory }
-*/
+    private val bookMarkViewModel: BookMarkViewModel by viewModels { bookMarkViewModelFactory }
+/*
     private val bookMarkViewModel: BookMarkViewModel by lazy {
         val bookMarkDatabase = BookMarkDatabase.getInstance(requireContext())
         val bookMarkLocalDataSourceImpl = BookMarkLocalDataSourceImpl(bookMarkDatabase!!)
@@ -108,6 +94,8 @@ class BookSearchFragment : Fragment() {
         }
     }
 
+ */
+
     override fun onAttach(context: Context) {
         //DaggerBookSearchComponent.factory().create(context).inject(this)
         super.onAttach(context)
@@ -151,7 +139,7 @@ class BookSearchFragment : Fragment() {
                 keyword = edit.text.toString()
                 if (keyword.isNotEmpty()) {
                     lifecycleScope.launch {
-                        bookViewModel.insertNewKey(keyword, 1)
+                        bookListViewModel.insertNewKey(keyword, 1)
                     }
                 }
             }
@@ -193,7 +181,7 @@ class BookSearchFragment : Fragment() {
 */
     private fun subscribe() {
         lifecycleScope.launchWhenStarted {
-            bookViewModel.bookState.filterNotNull().collectLatest {
+            bookListViewModel.bookState.filterNotNull().collectLatest {
                 if (it.meta != null) {
                     bookMetaData = it.meta
                 }
@@ -209,7 +197,7 @@ class BookSearchFragment : Fragment() {
         val page = ((adapter?.itemCount)?.div(10) ?: 1) + 1
         Log.v("페이지", page.toString())
         lifecycleScope.launch {
-            bookViewModel.insertKey(keyword, page)
+            bookListViewModel.insertKey(keyword, page)
         }
     }
 

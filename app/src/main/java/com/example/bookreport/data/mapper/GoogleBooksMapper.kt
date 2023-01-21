@@ -31,7 +31,7 @@ fun GoogleBooksItemsResponse.toDocument(): Documents {
                 Isbn.values().map { it.value }.contains(it.type)
             }
             ?.identifier
-            ?: "",
+            ?: "없음",
         datetime = volumeInfo?.publishedDate.orEmpty(),
         authors = volumeInfo?.authors.orEmpty(),
         publisher = volumeInfo?.publisher.orEmpty(),

@@ -4,6 +4,7 @@ import com.example.bookreport.data.entity.BookMarkEntity
 import com.example.bookreport.data.entity.room.BookMark
 import com.example.bookreport.repository.BookMarkRepository
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
 interface BookMarkUseCase{
     suspend fun saveBookMark(bookMark: BookMark)
@@ -11,7 +12,7 @@ interface BookMarkUseCase{
     suspend fun loadBookMark(): Flow<List<BookMark>>
 }
 
-class BookMarkUseCaseImpl (private val bookMarkRepository: BookMarkRepository): BookMarkUseCase {
+class BookMarkUseCaseImpl @Inject constructor(private val bookMarkRepository: BookMarkRepository): BookMarkUseCase {
     override suspend fun saveBookMark(bookMark: BookMark) {
         bookMarkRepository.insertData(bookMark)
     }

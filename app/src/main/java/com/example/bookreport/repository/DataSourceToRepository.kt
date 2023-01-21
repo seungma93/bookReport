@@ -5,13 +5,14 @@ import com.example.bookreport.data.mapper.toEntity
 import com.example.bookreport.data.remote.GoogleBooksRemoteDataSource
 import com.example.bookreport.data.remote.KakaoBookRemoteDataSource
 import kotlinx.coroutines.flow.MutableStateFlow
+import javax.inject.Inject
 
 
 interface DataSourceToRepository {
     suspend fun toRepository(keyword: String, page: Int): MutableStateFlow<BookEntity?>
 }
 
-class KakaoBookDataSourceToRepositoryImpl(
+class KakaoBookDataSourceToRepositoryImpl @Inject constructor(
     private val kakaoBookRemoteDataSource: KakaoBookRemoteDataSource
 ) : DataSourceToRepository {
     private val bookEntityStateFlow = MutableStateFlow<BookEntity?>(null)
@@ -25,7 +26,7 @@ class KakaoBookDataSourceToRepositoryImpl(
     }
 }
 
-class GoogleBooksDataSourceToRepositoryImpl(
+class GoogleBooksDataSourceToRepositoryImpl @Inject constructor(
     private val googleBooksRemoteDataSource: GoogleBooksRemoteDataSource
 ) : DataSourceToRepository {
     private val bookEntityStateFlow = MutableStateFlow<BookEntity?>(null)

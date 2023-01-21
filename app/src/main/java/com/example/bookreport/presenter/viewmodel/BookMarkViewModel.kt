@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-class BookMarkViewModel (private val useCase: BookMarkUseCase) : ViewModel() {
+class BookMarkViewModel @Inject constructor(private val useCase: BookMarkUseCase) : ViewModel() {
     /*
     private val _bookMarkLiveData = MutableLiveData<BookMarkEntity>()
     val bookMarkLiveData: LiveData<BookMarkEntity>

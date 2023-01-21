@@ -9,13 +9,14 @@ import com.example.bookreport.repository.BookRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.combine
+import javax.inject.Inject
 
 interface BookUseCase {
     suspend fun searchBookCollect(keyword: String, page: Int): Flow<BookListEntity>
     suspend fun searchBookEmit(keyword: String, page: Int)
 }
 
-class BookUseCaseImpl(
+class BookUseCaseImpl @Inject constructor(
     private val bookRepository: BookRepository,
     private val bookMarkRepository: BookMarkRepository
 ) : BookUseCase {

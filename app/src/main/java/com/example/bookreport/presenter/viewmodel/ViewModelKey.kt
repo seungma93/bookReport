@@ -1,5 +1,5 @@
-/*
-package com.example.bookreport.di
+
+package com.example.bookreport.presenter.viewmodel
 
 import androidx.lifecycle.ViewModel
 import dagger.MapKey
@@ -8,4 +8,4 @@ import kotlin.reflect.KClass
 
 @MapKey
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
-annotation class ViewModelKey(val value: KClass<out ViewModel>)*/
+annotation class ViewModelKey(val value: KClass<out ViewModel>)

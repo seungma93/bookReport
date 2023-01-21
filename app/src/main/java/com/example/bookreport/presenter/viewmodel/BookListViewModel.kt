@@ -12,9 +12,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
-class BookListViewModel(private val useCase: BookUseCase) : ViewModel() {
+class BookListViewModel @Inject constructor(private val useCase: BookUseCase) : ViewModel() {
     /*
     private val _bookLiveData = MutableLiveData<BookListEntity>()
     val bookLiveData: LiveData<BookListEntity>
