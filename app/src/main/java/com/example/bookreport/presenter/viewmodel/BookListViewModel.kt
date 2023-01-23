@@ -7,36 +7,55 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bookreport.data.entity.BookListEntity
 import com.example.bookreport.domain.BookUseCase
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-class BookListViewModel @Inject constructor(private val useCase: BookUseCase) : ViewModel() {
+class BookListViewModel (private val useCase: BookUseCase) : ViewModel() {
     /*
     private val _bookLiveData = MutableLiveData<BookListEntity>()
     val bookLiveData: LiveData<BookListEntity>
         get() = _bookLiveData
      */
     private val _bookState = MutableStateFlow<BookListEntity?>(null)
-    val bookState: StateFlow<BookListEntity?> = _bookState.asStateFlow()
+    val bookState: StateFlow<BookListEntity?> = combine(
+        _bookState,
+        useCase.subscribeSearchBook()
+    ){bookState, subscribeBookState ->
+        subscribeBookState
+    }.stateIn(viewModelScope, SharingStarted.Lazily, null)
+
     private val _error = MutableLiveData<Throwable>()
     val error: LiveData<Throwable>
         get() = _error
 
+
+
     fun insertKey(keyword: String, page: Int) {
-        kotlin.runCatching {
+
             viewModelScope.launch {
-                useCase.searchBookEmit(keyword, page)
+                kotlin.runCatching {
+                    useCase.searchBook(keyword, page)
+                }.onFailure {
+                    it.printStackTrace()
+                }
             }
-        }.onFailure {
-            it.printStackTrace()
+    }
+
+    fun insertNewKey(keyword: String, page: Int) {
+
+        viewModelScope.launch {
+            kotlin.runCatching {
+                useCase.searchNewBook(keyword, page)
+            }.onFailure {
+                it.printStackTrace()
+            }
         }
     }
 
+
+    /*
     fun insertNewKey(keyword: String, page: Int) {
         Log.v("BookListViewModel", "시작")
         kotlin.runCatching {
@@ -53,6 +72,8 @@ class BookListViewModel @Inject constructor(private val useCase: BookUseCase) : 
             it.printStackTrace()
         }
     }
+
+     */
 }
 
 

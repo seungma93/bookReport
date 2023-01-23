@@ -9,7 +9,7 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 
-class ViewModelFactory @Inject constructor(
+class ViewModelFactory (
     val viewModelMap: Map<Class<out ViewModel>, @JvmSuppressWildcards Provider<ViewModel>>) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -17,7 +17,7 @@ class ViewModelFactory @Inject constructor(
     }
 }
 
-/*
+
 class BookListViewModelFactory(private val useCase: BookUseCase) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -46,4 +46,4 @@ class ReportViewModelFactory(private val useCase: ReportUseCase) : ViewModelProv
 }
 
 
- */
+

@@ -9,10 +9,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 
-class BookMarkViewModel @Inject constructor(private val useCase: BookMarkUseCase) : ViewModel() {
+
+class BookMarkViewModel (private val useCase: BookMarkUseCase) : ViewModel() {
     /*
     private val _bookMarkLiveData = MutableLiveData<BookMarkEntity>()
     val bookMarkLiveData: LiveData<BookMarkEntity>

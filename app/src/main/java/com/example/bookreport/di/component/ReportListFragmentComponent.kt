@@ -1,3 +1,4 @@
+/*
 package com.example.bookreport.di.component
 
 import com.example.bookreport.di.subcomponent.ReportViewModelSubComponent
@@ -23,3 +24,4 @@ interface ReportListFragmentComponent {
     }
 }
 
+*/

@@ -12,24 +12,54 @@ import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 
 interface BookUseCase {
-    suspend fun searchBookCollect(keyword: String, page: Int): Flow<BookListEntity>
-    suspend fun searchBookEmit(keyword: String, page: Int)
+    suspend fun searchBook(keyword: String, page: Int)
+    suspend fun searchNewBook(keyword: String, page: Int)
+    fun subscribeSearchBook(): Flow<BookListEntity?>
 }
 
-class BookUseCaseImpl @Inject constructor(
+class BookUseCaseImpl (
     private val bookRepository: BookRepository,
     private val bookMarkRepository: BookMarkRepository
 ) : BookUseCase {
-    private var savedBookListEntity: BookListEntity? = null
-    private lateinit var bookListEntityFlow: Flow<BookListEntity>
-    private lateinit var bookEntityStateFlow: MutableSharedFlow<BookEntity?>
-    private var savedKeyword = ""
 
-    override suspend fun searchBookEmit(keyword: String, page: Int) {
-        bookRepository.getBookListEntity(keyword, page)
+    override suspend fun searchBook(keyword: String, page: Int) {
+        bookRepository.getBookEntity(keyword, page)
     }
 
-    override suspend fun searchBookCollect(keyword: String, page: Int): Flow<BookListEntity> {
+    override suspend fun searchNewBook(keyword: String, page: Int) {
+        bookRepository.getNewBookEntity(keyword, page)
+    }
+
+
+    override fun subscribeSearchBook(): Flow<BookListEntity?> {
+        return combine(
+            bookMarkRepository.selectData(),
+            bookRepository.subscribeBookEntity()
+        ) { bookMark, book ->
+
+            if (book != null) {
+                val bookAndBookMark = book.items.map { bookItem ->
+                    BookAndBookMark(
+                        bookItem,
+                        bookMark.find { it.title == bookItem.title })
+                }
+                when (book) {
+                    is BookEntity.KakaoBookEntity -> {
+                        BookListEntity.KakaoBookListEntity(bookAndBookMark, book.meta)
+                    }
+                    is BookEntity.GoogleBooksEntity -> {
+                        BookListEntity.GoogleBooksListEntity(bookAndBookMark, book.meta)
+                    }
+                }
+            } else {
+                null
+            }
+        }
+    }
+}
+
+
+        /*
         Log.v("BookUseCase", "시작")
         if (savedKeyword.isEmpty()) {
 
@@ -92,5 +122,7 @@ class BookUseCaseImpl @Inject constructor(
         Log.v("BookUseCase", "끝")
         return bookListEntityFlow
     }
-}
+
+         */
+
 

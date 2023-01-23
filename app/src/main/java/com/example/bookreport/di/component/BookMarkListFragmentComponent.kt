@@ -1,3 +1,4 @@
+/*
 package com.example.bookreport.di.component
 
 import android.content.Context
@@ -24,3 +25,4 @@ import dagger.Subcomponent
         fun create(@BindsInstance context: Context): BookMarkListFragmentComponent
     }
 }
+*/

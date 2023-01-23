@@ -15,12 +15,28 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bookreport.data.entity.Meta
 import com.example.bookreport.data.entity.room.BookMark
+import com.example.bookreport.data.entity.room.BookMarkDatabase
+import com.example.bookreport.data.local.BookMarkLocalDataSourceImpl
+import com.example.bookreport.data.remote.GoogleBooksRemoteDataSource
+import com.example.bookreport.data.remote.KakaoBookRemoteDataSource
 import com.example.bookreport.databinding.FragmentBookSearchBinding
+import com.example.bookreport.domain.BookMarkUseCaseImpl
+import com.example.bookreport.domain.BookUseCaseImpl
+import com.example.bookreport.network.GoogleBooksRetrofitImpl
+import com.example.bookreport.network.KakaoBookRetrofitImpl
 import com.example.bookreport.presenter.BookReport
 import com.example.bookreport.presenter.EndPoint
 import com.example.bookreport.presenter.adapter.BookListAdapter
+import com.example.bookreport.presenter.fragment.ReportListFragment.Companion.GOOGLE_KEY
+import com.example.bookreport.presenter.fragment.ReportListFragment.Companion.KAKAO_KEY
 import com.example.bookreport.presenter.viewmodel.BookListViewModel
+import com.example.bookreport.presenter.viewmodel.BookListViewModelFactory
 import com.example.bookreport.presenter.viewmodel.BookMarkViewModel
+import com.example.bookreport.presenter.viewmodel.BookMarkViewModelFactory
+import com.example.bookreport.repository.BookMarkRepositoryImpl
+import com.example.bookreport.repository.BookRepositoryImpl
+import com.example.bookreport.repository.GoogleBooksDataSourceToRepositoryImpl
+import com.example.bookreport.repository.KakaoBookDataSourceToRepositoryImpl
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -40,14 +56,16 @@ class BookSearchFragment : Fragment() {
     private var keyword: String = ""
     private val bookType get() = requireArguments().getSerializable(ReportListFragment.BOOK_TYPE_KEY) as String
 
-
+/*
     @Inject
     lateinit var bookListViewModelFactory: ViewModelProvider.Factory
     private val bookListViewModel: BookListViewModel by viewModels { bookListViewModelFactory }
     @Inject
     lateinit var bookMarkViewModelFactory: ViewModelProvider.Factory
     private val bookMarkViewModel: BookMarkViewModel by viewModels { bookMarkViewModelFactory }
-/*
+
+ */
+
     private val bookMarkViewModel: BookMarkViewModel by lazy {
         val bookMarkDatabase = BookMarkDatabase.getInstance(requireContext())
         val bookMarkLocalDataSourceImpl = BookMarkLocalDataSourceImpl(bookMarkDatabase!!)
@@ -57,7 +75,7 @@ class BookSearchFragment : Fragment() {
         ViewModelProvider(requireActivity(), factory).get(BookMarkViewModel::class.java)
     }
 
-    private val bookViewModel: BookListViewModel by lazy {
+    private val bookListViewModel: BookListViewModel by lazy {
         val bookMarkDatabase = BookMarkDatabase.getInstance(requireContext())
         val bookMarkLocalDataSourceImpl = BookMarkLocalDataSourceImpl(bookMarkDatabase!!)
         val bookMarkRepositoryImpl = BookMarkRepositoryImpl(bookMarkLocalDataSourceImpl)
@@ -72,7 +90,7 @@ class BookSearchFragment : Fragment() {
                     BookRepositoryImpl(kakaoBookDataSourceToRepositoryImpl)
                 val kakaoBookUseCaseImpl =
                     BookUseCaseImpl(kakaoBookRepositoryImpl, bookMarkRepositoryImpl)
-                val factory = BookViewModelFactory(kakaoBookUseCaseImpl)
+                val factory = BookListViewModelFactory(kakaoBookUseCaseImpl)
                 ViewModelProvider(this, factory).get(BookListViewModel::class.java)
             }
             GOOGLE_KEY -> {
@@ -87,14 +105,14 @@ class BookSearchFragment : Fragment() {
                     )
                 val googleBooksUseCaseImpl =
                     BookUseCaseImpl(googleBooksRepositoryImpl, bookMarkRepositoryImpl)
-                val factory = BookViewModelFactory(googleBooksUseCaseImpl)
+                val factory = BookListViewModelFactory(googleBooksUseCaseImpl)
                 ViewModelProvider(this, factory).get(BookListViewModel::class.java)
             }
             else -> throw IllegalArgumentException()
         }
     }
 
- */
+
 
     override fun onAttach(context: Context) {
         //DaggerBookSearchComponent.factory().create(context).inject(this)

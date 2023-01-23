@@ -1,3 +1,4 @@
+/*
 
 package com.example.bookreport.di.component
 
@@ -30,3 +31,4 @@ interface BookSearchFragmentComponent {
 
 
 
+*/

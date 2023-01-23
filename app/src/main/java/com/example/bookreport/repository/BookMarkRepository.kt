@@ -12,10 +12,10 @@ import javax.inject.Inject
 interface BookMarkRepository {
     suspend fun insertData(bookMark: BookMark)
     suspend fun deleteData(bookMark: BookMark)
-    suspend fun selectData(): Flow<List<BookMark>>
+    fun selectData(): Flow<List<BookMark>>
 }
 
-class BookMarkRepositoryImpl @Inject constructor(
+class BookMarkRepositoryImpl (
     private val bookMarkLocalDataSource: BookMarkLocalDataSource,
 ) : BookMarkRepository {
     override suspend fun insertData(bookMark: BookMark) {
@@ -26,7 +26,7 @@ class BookMarkRepositoryImpl @Inject constructor(
             bookMarkLocalDataSource.delete(bookMark)
     }
 
-    override suspend fun selectData(): Flow<List<BookMark>> {
+    override fun selectData(): Flow<List<BookMark>> {
         Log.v("BookMarkRepository", "동작")
             return bookMarkLocalDataSource.select()
     }

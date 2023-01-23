@@ -12,7 +12,7 @@ import javax.inject.Inject
 interface BookMarkLocalDataSource {
     suspend fun insert(bookMark: BookMark)
     suspend fun delete(bookMark: BookMark)
-    suspend fun select(): Flow<List<BookMark>>
+    fun select(): Flow<List<BookMark>>
 }
 
 class BookMarkLocalDataSourceImpl(private val db: BookMarkDatabase) :
@@ -26,7 +26,7 @@ class BookMarkLocalDataSourceImpl(private val db: BookMarkDatabase) :
         db.bookMarkDao().delete(bookMark)
     }
 
-    override suspend fun select(): Flow<List<BookMark>> {
+    override fun select(): Flow<List<BookMark>> {
         /*
         db.bookMarkDao().getAllBookMakrs().map {
             if (it.isNotEmpty()) {

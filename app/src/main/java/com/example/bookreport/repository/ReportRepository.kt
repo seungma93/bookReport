@@ -11,7 +11,7 @@ interface ReportRepository{
     suspend fun update(report: Report)
 }
 
-class ReportRepositoryImpl @Inject constructor(
+class ReportRepositoryImpl (
     private val reportLocalDataSource: ReportLocalDataSource): ReportRepository {
 
     override suspend fun save(report: Report) {
