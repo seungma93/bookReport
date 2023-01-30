@@ -15,7 +15,7 @@ interface BookMarkLocalDataSource {
     fun select(): Flow<List<BookMark>>
 }
 
-class BookMarkLocalDataSourceImpl(private val db: BookMarkDatabase) :
+class BookMarkLocalDataSourceImpl @Inject constructor(private val db: BookMarkDatabase) :
     BookMarkLocalDataSource {
 
     override suspend fun insert(bookMark: BookMark) {

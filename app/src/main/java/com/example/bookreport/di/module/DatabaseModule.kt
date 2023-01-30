@@ -1,4 +1,3 @@
-/*
 package com.example.bookreport.di.module
 
 import android.content.Context
@@ -25,4 +24,4 @@ class DatabaseModule {
             return BookMarkDatabase.getInstance(context.applicationContext)!!
         }
     }
-}*/
+}

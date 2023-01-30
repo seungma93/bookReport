@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
-class ReportViewModel (private val useCase: ReportUseCase) : ViewModel() {
+class ReportViewModel @Inject constructor(private val useCase: ReportUseCase) : ViewModel() {
     /*
     private val _liveData = MutableLiveData<ReportEntity>()
     val liveData: LiveData<ReportEntity>

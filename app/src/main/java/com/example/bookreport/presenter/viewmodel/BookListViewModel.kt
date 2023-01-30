@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-class BookListViewModel (private val useCase: BookUseCase) : ViewModel() {
+class BookListViewModel @Inject constructor(private val useCase: BookUseCase) : ViewModel() {
     /*
     private val _bookLiveData = MutableLiveData<BookListEntity>()
     val bookLiveData: LiveData<BookListEntity>
@@ -41,17 +41,6 @@ class BookListViewModel (private val useCase: BookUseCase) : ViewModel() {
                     it.printStackTrace()
                 }
             }
-    }
-
-    fun insertNewKey(keyword: String, page: Int) {
-
-        viewModelScope.launch {
-            kotlin.runCatching {
-                useCase.searchNewBook(keyword, page)
-            }.onFailure {
-                it.printStackTrace()
-            }
-        }
     }
 
 

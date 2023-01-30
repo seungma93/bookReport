@@ -9,6 +9,10 @@ import com.example.bookreport.R
 import com.example.bookreport.data.entity.BookAndBookMark
 import com.example.bookreport.data.entity.room.Report
 import com.example.bookreport.databinding.ActivityMainBinding
+import com.example.bookreport.di.component.DaggerGoogleBooksComponent
+import com.example.bookreport.di.component.DaggerKakaoBookComponent
+import com.example.bookreport.di.component.GoogleBooksComponent
+import com.example.bookreport.di.component.KakaoBookComponent
 import com.example.bookreport.presenter.fragment.*
 
 
@@ -25,9 +29,17 @@ interface BookReport {
     fun navigateFragment(endPoint: EndPoint)
 }
 
-class MainActivity : AppCompatActivity(), BookReport {
+interface Dagger {
+    val kakaoBookComponent: KakaoBookComponent
+    val googleBooksComponent: GoogleBooksComponent
+}
+
+class MainActivity() : AppCompatActivity(), BookReport, Dagger {
     private var _binding: ActivityMainBinding? = null
     private val binding get() = _binding!!
+    override val googleBooksComponent: GoogleBooksComponent = DaggerGoogleBooksComponent.create()
+    override val kakaoBookComponent: KakaoBookComponent = DaggerKakaoBookComponent.create()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

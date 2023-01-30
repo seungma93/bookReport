@@ -1,15 +1,11 @@
-/*
 package com.example.bookreport.di.module
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.bookreport.presenter.viewmodel.ViewModelKey
 import com.example.bookreport.domain.BookMarkUseCase
 import com.example.bookreport.domain.BookUseCase
 import com.example.bookreport.domain.ReportUseCase
-import com.example.bookreport.presenter.viewmodel.BookListViewModel
-import com.example.bookreport.presenter.viewmodel.BookMarkViewModel
-import com.example.bookreport.presenter.viewmodel.ReportViewModel
+import com.example.bookreport.presenter.viewmodel.*
 
 import dagger.Binds
 import dagger.Module
@@ -22,7 +18,7 @@ class ViewModelModule {
     @Module
     abstract class ViewModelFactoryModule {
         @Binds
-        abstract fun bindViewModelFactory(viewModelFactory: ViewModelProvider.Factory ) : ViewModelProvider.Factory
+        abstract fun bindViewModelFactory(viewModelFactory: ViewModelFactory) : ViewModelProvider.Factory
     }
 
     @Module
@@ -55,4 +51,4 @@ class ViewModelModule {
         }
     }
 
-}*/
+}

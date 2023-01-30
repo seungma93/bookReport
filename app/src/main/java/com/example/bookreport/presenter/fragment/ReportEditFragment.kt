@@ -6,32 +6,25 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.bookreport.data.entity.room.BookMark
-import com.example.bookreport.data.entity.room.BookMarkDatabase
 import com.example.bookreport.data.entity.room.Report
-import com.example.bookreport.data.entity.room.ReportDatabase
-import com.example.bookreport.data.local.BookMarkLocalDataSourceImpl
-import com.example.bookreport.data.local.ReportLocalDataSourceImpl
 import com.example.bookreport.databinding.FragmentReportEditBinding
-import com.example.bookreport.domain.BookMarkUseCaseImpl
-import com.example.bookreport.domain.ReportUseCaseImpl
+import com.example.bookreport.di.component.DaggerReportEditWriteFragmentComponent
 import com.example.bookreport.presenter.BookReport
 import com.example.bookreport.presenter.EndPoint
 import com.example.bookreport.presenter.viewmodel.BookMarkViewModel
-import com.example.bookreport.presenter.viewmodel.BookMarkViewModelFactory
 import com.example.bookreport.presenter.viewmodel.ReportViewModel
-import com.example.bookreport.presenter.viewmodel.ReportViewModelFactory
-import com.example.bookreport.repository.BookMarkRepositoryImpl
-import com.example.bookreport.repository.ReportRepositoryImpl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 class ReportEditFragment : Fragment() {
     companion object {
@@ -41,19 +34,15 @@ class ReportEditFragment : Fragment() {
     private var _binding: FragmentReportEditBinding? = null
     private val binding get() = _binding!!
     private val report get() = requireArguments().getSerializable(ReportEditFragment.REPORT_KEY) as Report
-/*
+
     @Inject
     lateinit var reportViewModelFactory: ViewModelProvider.Factory
-    private val reportViewModel: ReportViewModel by activityViewModels { reportViewModelFactory }
+    private val reportViewModel: ReportViewModel by viewModels { reportViewModelFactory }
     @Inject
     lateinit var bookMarkViewModelFactory: ViewModelProvider.Factory
-    private val bookMarkViewModel: BookMarkViewModel by activityViewModels { bookMarkViewModelFactory }
+    private val bookMarkViewModel: BookMarkViewModel by viewModels { bookMarkViewModelFactory }
 
-    @Inject
-    lateinit var bookListViewModelFactory: ViewModelProvider.Factory
-    private val bookListViewModel: BookViewModel by activityViewModels { bookListViewModelFactory }
-*/
-
+    /*
     private val bookMarkViewModel: BookMarkViewModel by lazy {
         val bookMarkDatabase = BookMarkDatabase.getInstance(requireContext())
         val bookMarkLocalDataSourceImpl = BookMarkLocalDataSourceImpl(bookMarkDatabase!!)
@@ -72,8 +61,10 @@ class ReportEditFragment : Fragment() {
         ViewModelProvider(requireActivity(), factory).get(ReportViewModel::class.java)
     }
 
+     */
+
     override fun onAttach(context: Context) {
-        //DaggerReportEditComponent.factory().create(context).inject(this)
+        DaggerReportEditWriteFragmentComponent.factory().create(context).inject(this)
         super.onAttach(context)
     }
 

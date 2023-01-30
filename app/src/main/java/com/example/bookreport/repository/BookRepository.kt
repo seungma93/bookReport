@@ -8,29 +8,21 @@ import javax.inject.Inject
 
 interface BookRepository {
     suspend fun getBookEntity(keyword: String, page: Int): Flow<BookEntity?>
-    suspend fun getNewBookEntity(keyword: String, page: Int): Flow<BookEntity?>
     fun subscribeBookEntity(): Flow<BookEntity?>
 }
 
-class BookRepositoryImpl (
-    private val dataSourceToRepository: DataSourceToRepository
+class BookRepositoryImpl @Inject constructor(
+    private val bookDataSourceWrapper: BookDataSourceWrapper
 ) : BookRepository {
 
     override suspend fun getBookEntity(
         keyword: String,
         page: Int
     ): Flow<BookEntity?> {
-        return dataSourceToRepository.getDataSource(keyword, page)
-    }
-
-    override suspend fun getNewBookEntity(
-        keyword: String,
-        page: Int
-    ): Flow<BookEntity?> {
-        return dataSourceToRepository.getNewDataSource(keyword, page)
+        return bookDataSourceWrapper.getDataSource(keyword, page)
     }
 
     override fun subscribeBookEntity(): Flow<BookEntity?> =
-        dataSourceToRepository.subscribeDataSource()
+        bookDataSourceWrapper.subscribeDataSource()
 
 }

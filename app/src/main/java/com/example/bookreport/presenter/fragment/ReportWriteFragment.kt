@@ -20,6 +20,7 @@ import com.example.bookreport.data.entity.room.ReportDatabase
 import com.example.bookreport.data.local.BookMarkLocalDataSourceImpl
 import com.example.bookreport.data.local.ReportLocalDataSourceImpl
 import com.example.bookreport.databinding.FragmentReportWriteBinding
+import com.example.bookreport.di.component.DaggerReportEditWriteFragmentComponent
 import com.example.bookreport.domain.BookMarkUseCaseImpl
 import com.example.bookreport.domain.ReportUseCaseImpl
 import com.example.bookreport.presenter.BookReport
@@ -44,7 +45,7 @@ class ReportWriteFragment : Fragment() {
     private val binding get() = _binding!!
     private val bookAndBookMark get() = requireArguments().getSerializable(BookSearchFragment.BOOK_AND_BOOKMARK) as BookAndBookMark
 
-    /*
+
     @Inject
     lateinit var reportViewModelFactory: ViewModelProvider.Factory
     private val reportViewModel: ReportViewModel by viewModels { reportViewModelFactory }
@@ -52,11 +53,7 @@ class ReportWriteFragment : Fragment() {
     lateinit var bookMarkViewModelFactory: ViewModelProvider.Factory
     private val bookMarkViewModel: BookMarkViewModel by activityViewModels { bookMarkViewModelFactory }
 
-    @Inject
-    lateinit var bookListViewModelFactory: ViewModelProvider.Factory
-    private val bookListViewModel: BookViewModel by activityViewModels { bookListViewModelFactory }
-*/
-
+/*
     private val bookMarkViewModel: BookMarkViewModel by lazy {
         val bookMarkDatabase = BookMarkDatabase.getInstance(requireContext())
         val bookMarkLocalDataSourceImpl = BookMarkLocalDataSourceImpl(bookMarkDatabase!!)
@@ -74,9 +71,11 @@ class ReportWriteFragment : Fragment() {
         val factory = ReportViewModelFactory(reportUseCaseImpl)
         ViewModelProvider(requireActivity(), factory).get(ReportViewModel::class.java)
     }
+    
+ */
 
     override fun onAttach(context: Context) {
-        //DaggerReportWriteComponent.factory().create(context).inject(this)
+        DaggerReportEditWriteFragmentComponent.factory().create(context).inject(this)
         super.onAttach(context)
     }
 

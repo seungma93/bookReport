@@ -1,17 +1,19 @@
-/*
 package com.example.bookreport.di.component
 
-import com.example.bookreport.di.subcomponent.ReportViewModelSubComponent
-
-
 import android.content.Context
+import com.example.bookreport.di.module.*
 import com.example.bookreport.presenter.fragment.ReportListFragment
 import dagger.BindsInstance
 import dagger.Component
 
 @Component(
     modules = [
-        ReportViewModelSubComponent::class
+        DatabaseModule.ReportDatabaseModule::class,
+        DataSourceModule.ReportDataSourceModule::class,
+        RepositoryModule.ReportRepositoryModule::class,
+        UseCaseModule.ReportUseCaseModule::class,
+        ViewModelModule.ReportViewModelModule::class,
+        ViewModelModule.ViewModelFactoryModule::class
     ]
 )
 
@@ -20,8 +22,9 @@ interface ReportListFragmentComponent {
 
     @Component.Factory
     interface Factory {
-        fun create(@BindsInstance context: Context): ReportListFragmentComponent
+        fun create(
+            @BindsInstance context: Context
+        ): ReportListFragmentComponent
     }
 }
 
-*/

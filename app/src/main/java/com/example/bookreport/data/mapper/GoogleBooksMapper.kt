@@ -41,10 +41,3 @@ fun GoogleBooksItemsResponse.toDocument(): Documents {
 
     return a
 }
-
-fun List<BookAndBookMark>.toBookMark(entity: BookListEntity): BookListEntity {
-    return when(entity){
-        is BookListEntity.KakaoBookListEntity -> BookListEntity.KakaoBookListEntity(this, entity.meta)
-        is BookListEntity.GoogleBooksListEntity -> BookListEntity.GoogleBooksListEntity(this, entity.meta)
-    }
-}

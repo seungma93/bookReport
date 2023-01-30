@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.bookreport.R
@@ -14,6 +15,7 @@ import com.example.bookreport.data.entity.room.Report
 import com.example.bookreport.data.entity.room.ReportDatabase
 import com.example.bookreport.data.local.ReportLocalDataSourceImpl
 import com.example.bookreport.databinding.FragmentReportListBinding
+import com.example.bookreport.di.component.DaggerReportListFragmentComponent
 import com.example.bookreport.domain.ReportUseCaseImpl
 import com.example.bookreport.presenter.BookReport
 import com.example.bookreport.presenter.EndPoint
@@ -26,6 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class ReportListFragment : Fragment() {
     companion object {
@@ -36,11 +39,12 @@ class ReportListFragment : Fragment() {
     private var _binding: FragmentReportListBinding? = null
     private val binding get() = _binding!!
     private var adapter: ReportListAdapter? = null
-    /*
+
     @Inject
     lateinit var reportViewModelFactory: ViewModelProvider.Factory
-    private val reportViewModel: ReportViewModel by activityViewModels { reportViewModelFactory }
-*/
+    private val reportViewModel: ReportViewModel by viewModels { reportViewModelFactory }
+
+    /*
     private val reportViewModel: ReportViewModel by lazy {
         val reportDatabase = ReportDatabase.getInstance(requireContext())
         val reportLocalDataSourceImpl = ReportLocalDataSourceImpl(reportDatabase!!)
@@ -50,9 +54,11 @@ class ReportListFragment : Fragment() {
         ViewModelProvider(requireActivity(), factory).get(ReportViewModel::class.java)
     }
 
+     */
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        //DaggerReportListComponent.factory().create(context).inject(this)
+        DaggerReportListFragmentComponent.factory().create(context).inject(this)
     }
 
     override fun onCreateView(

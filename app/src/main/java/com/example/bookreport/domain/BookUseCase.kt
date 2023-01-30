@@ -13,11 +13,10 @@ import javax.inject.Inject
 
 interface BookUseCase {
     suspend fun searchBook(keyword: String, page: Int)
-    suspend fun searchNewBook(keyword: String, page: Int)
     fun subscribeSearchBook(): Flow<BookListEntity?>
 }
 
-class BookUseCaseImpl (
+class BookUseCaseImpl @Inject constructor(
     private val bookRepository: BookRepository,
     private val bookMarkRepository: BookMarkRepository
 ) : BookUseCase {
@@ -25,11 +24,6 @@ class BookUseCaseImpl (
     override suspend fun searchBook(keyword: String, page: Int) {
         bookRepository.getBookEntity(keyword, page)
     }
-
-    override suspend fun searchNewBook(keyword: String, page: Int) {
-        bookRepository.getNewBookEntity(keyword, page)
-    }
-
 
     override fun subscribeSearchBook(): Flow<BookListEntity?> {
         return combine(

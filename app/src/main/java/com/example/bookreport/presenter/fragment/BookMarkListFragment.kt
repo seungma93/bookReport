@@ -6,31 +6,29 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.example.bookreport.data.entity.room.BookMarkDatabase
-import com.example.bookreport.data.local.BookMarkLocalDataSourceImpl
 import com.example.bookreport.databinding.FragmentBookmarkListBinding
-import com.example.bookreport.domain.BookMarkUseCaseImpl
+import com.example.bookreport.di.component.DaggerBookMarkListFragmentComponent
 import com.example.bookreport.presenter.adapter.BookMarkListAdapter
 import com.example.bookreport.presenter.viewmodel.BookMarkViewModel
-import com.example.bookreport.presenter.viewmodel.BookMarkViewModelFactory
-import com.example.bookreport.repository.BookMarkRepositoryImpl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 class BookMarkListFragment: Fragment() {
     private var _binding: FragmentBookmarkListBinding? = null
     private val binding get() = _binding!!
     private var adapter: BookMarkListAdapter? = null
-    /*
+
     @Inject
     lateinit var bookMarkViewModelFactory: ViewModelProvider.Factory
-    private val bookMarkViewModel: BookMarkViewModel by activityViewModels { bookMarkViewModelFactory }
-*/
+    private val bookMarkViewModel: BookMarkViewModel by viewModels { bookMarkViewModelFactory }
+/*
     private val bookMarkViewModel: BookMarkViewModel by lazy {
         val bookMarkDatabase = BookMarkDatabase.getInstance(requireContext())
         val bookMarkLocalDataSourceImpl = BookMarkLocalDataSourceImpl(bookMarkDatabase!!)
@@ -40,8 +38,10 @@ class BookMarkListFragment: Fragment() {
         ViewModelProvider(requireActivity(), factory).get(BookMarkViewModel::class.java)
     }
 
+ */
+
     override fun onAttach(context: Context) {
-        //DaggerBookMarkListComponent.factory().create(context).inject(this)
+        DaggerBookMarkListFragmentComponent.factory().create(context).inject(this)
         super.onAttach(context)
     }
 

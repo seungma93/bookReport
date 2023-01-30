@@ -12,7 +12,7 @@ interface BookMarkUseCase{
     suspend fun loadBookMark(): Flow<List<BookMark>>
 }
 
-class BookMarkUseCaseImpl (private val bookMarkRepository: BookMarkRepository): BookMarkUseCase {
+class BookMarkUseCaseImpl @Inject constructor(private val bookMarkRepository: BookMarkRepository): BookMarkUseCase {
     override suspend fun saveBookMark(bookMark: BookMark) {
         bookMarkRepository.insertData(bookMark)
     }

@@ -3,6 +3,7 @@ package com.example.bookreport.data.remote
 import com.example.bookreport.KakaoBookResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
+import javax.inject.Inject
 
 interface KakaoBookRemoteDataSource {
     companion object {

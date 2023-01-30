@@ -15,28 +15,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bookreport.data.entity.Meta
 import com.example.bookreport.data.entity.room.BookMark
-import com.example.bookreport.data.entity.room.BookMarkDatabase
-import com.example.bookreport.data.local.BookMarkLocalDataSourceImpl
-import com.example.bookreport.data.remote.GoogleBooksRemoteDataSource
-import com.example.bookreport.data.remote.KakaoBookRemoteDataSource
 import com.example.bookreport.databinding.FragmentBookSearchBinding
-import com.example.bookreport.domain.BookMarkUseCaseImpl
-import com.example.bookreport.domain.BookUseCaseImpl
-import com.example.bookreport.network.GoogleBooksRetrofitImpl
-import com.example.bookreport.network.KakaoBookRetrofitImpl
+import com.example.bookreport.di.component.DaggerBookMarkListFragmentComponent
+import com.example.bookreport.di.component.DaggerGoogleBookSearchFragmentComponent
+import com.example.bookreport.di.component.DaggerKakaoBookComponent
+import com.example.bookreport.di.component.DaggerKakaoBookSearchFragmentComponent
 import com.example.bookreport.presenter.BookReport
+import com.example.bookreport.presenter.Dagger
 import com.example.bookreport.presenter.EndPoint
 import com.example.bookreport.presenter.adapter.BookListAdapter
-import com.example.bookreport.presenter.fragment.ReportListFragment.Companion.GOOGLE_KEY
 import com.example.bookreport.presenter.fragment.ReportListFragment.Companion.KAKAO_KEY
 import com.example.bookreport.presenter.viewmodel.BookListViewModel
-import com.example.bookreport.presenter.viewmodel.BookListViewModelFactory
 import com.example.bookreport.presenter.viewmodel.BookMarkViewModel
-import com.example.bookreport.presenter.viewmodel.BookMarkViewModelFactory
-import com.example.bookreport.repository.BookMarkRepositoryImpl
-import com.example.bookreport.repository.BookRepositoryImpl
-import com.example.bookreport.repository.GoogleBooksDataSourceToRepositoryImpl
-import com.example.bookreport.repository.KakaoBookDataSourceToRepositoryImpl
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -56,16 +46,15 @@ class BookSearchFragment : Fragment() {
     private var keyword: String = ""
     private val bookType get() = requireArguments().getSerializable(ReportListFragment.BOOK_TYPE_KEY) as String
 
-/*
+
     @Inject
     lateinit var bookListViewModelFactory: ViewModelProvider.Factory
     private val bookListViewModel: BookListViewModel by viewModels { bookListViewModelFactory }
-    @Inject
-    lateinit var bookMarkViewModelFactory: ViewModelProvider.Factory
-    private val bookMarkViewModel: BookMarkViewModel by viewModels { bookMarkViewModelFactory }
 
- */
+    private val bookMarkViewModel: BookMarkViewModel by viewModels { bookListViewModelFactory }
 
+
+/*
     private val bookMarkViewModel: BookMarkViewModel by lazy {
         val bookMarkDatabase = BookMarkDatabase.getInstance(requireContext())
         val bookMarkLocalDataSourceImpl = BookMarkLocalDataSourceImpl(bookMarkDatabase!!)
@@ -112,10 +101,22 @@ class BookSearchFragment : Fragment() {
         }
     }
 
+ */
 
 
     override fun onAttach(context: Context) {
-        //DaggerBookSearchComponent.factory().create(context).inject(this)
+        val kakoBookComponent = (requireActivity() as Dagger).kakaoBookComponent
+        val googleBooksComponent = (requireActivity() as Dagger).googleBooksComponent
+
+
+        when (bookType) {
+            KAKAO_KEY ->
+                DaggerKakaoBookSearchFragmentComponent.factory()
+                    .create(kakoBookComponent, googleBooksComponent, bookType, context).inject(this)
+            else -> DaggerGoogleBookSearchFragmentComponent.factory()
+                .create(kakoBookComponent, googleBooksComponent, bookType, context).inject(this)
+        }
+
         super.onAttach(context)
     }
 
@@ -157,7 +158,7 @@ class BookSearchFragment : Fragment() {
                 keyword = edit.text.toString()
                 if (keyword.isNotEmpty()) {
                     lifecycleScope.launch {
-                        bookListViewModel.insertNewKey(keyword, 1)
+                        bookListViewModel.insertKey(keyword, 1)
                     }
                 }
             }

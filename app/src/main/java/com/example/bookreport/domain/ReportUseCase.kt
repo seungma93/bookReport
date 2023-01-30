@@ -12,7 +12,7 @@ interface ReportUseCase {
     suspend fun editReport(report: Report)
 }
 
-class ReportUseCaseImpl (private val reportRepository: ReportRepository) : ReportUseCase {
+class ReportUseCaseImpl @Inject constructor(private val reportRepository: ReportRepository) : ReportUseCase {
 
     override suspend fun saveReport(report: Report) {
         reportRepository.save(report)
