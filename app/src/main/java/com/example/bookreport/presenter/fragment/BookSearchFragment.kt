@@ -8,47 +8,115 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.bookreport.data.entity.KakaoBookMeta
+import com.example.bookreport.data.entity.Meta
 import com.example.bookreport.data.entity.room.BookMark
-import com.example.bookreport.databinding.BookListItemBinding
 import com.example.bookreport.databinding.FragmentBookSearchBinding
-import com.example.bookreport.di.DaggerBookListComponent
-import com.example.bookreport.di.DaggerBookMarkComponent
-import com.example.bookreport.presenter.BookListAdapter
+import com.example.bookreport.di.component.DaggerBookMarkListFragmentComponent
+import com.example.bookreport.di.component.DaggerGoogleBookSearchFragmentComponent
+import com.example.bookreport.di.component.DaggerKakaoBookComponent
+import com.example.bookreport.di.component.DaggerKakaoBookSearchFragmentComponent
 import com.example.bookreport.presenter.BookReport
+import com.example.bookreport.presenter.Dagger
 import com.example.bookreport.presenter.EndPoint
+import com.example.bookreport.presenter.adapter.BookListAdapter
+import com.example.bookreport.presenter.fragment.ReportListFragment.Companion.KAKAO_KEY
+import com.example.bookreport.presenter.viewmodel.BookListViewModel
 import com.example.bookreport.presenter.viewmodel.BookMarkViewModel
-import com.example.bookreport.presenter.viewmodel.BookViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class BookSearchFragment : Fragment() {
     companion object {
-        const val KAKAO_BOOK_KEY = "KAKAO_BOOK_KEY"
+        const val BOOK_AND_BOOKMARK = "BOOK_AND_BOOKMARK"
     }
 
     private var _binding: FragmentBookSearchBinding? = null
     private val binding get() = _binding!!
     private var adapter: BookListAdapter? = null
+
     private val onScrollListener: RecyclerView.OnScrollListener = OnScrollListener()
-    private lateinit var bookMetaData: KakaoBookMeta
+    private var bookMetaData: Meta? = null
     private var keyword: String = ""
+    private val bookType get() = requireArguments().getSerializable(ReportListFragment.BOOK_TYPE_KEY) as String
+
 
     @Inject
     lateinit var bookListViewModelFactory: ViewModelProvider.Factory
-    private val viewModel: BookViewModel by activityViewModels { bookListViewModelFactory }
-    @Inject
-    lateinit var bookMarkViewModelFactory: ViewModelProvider.Factory
-    private val bookMarkViewModel: BookMarkViewModel by activityViewModels { bookMarkViewModelFactory }
+    private val bookListViewModel: BookListViewModel by viewModels { bookListViewModelFactory }
+
+    private val bookMarkViewModel: BookMarkViewModel by viewModels { bookListViewModelFactory }
+
+
+/*
+    private val bookMarkViewModel: BookMarkViewModel by lazy {
+        val bookMarkDatabase = BookMarkDatabase.getInstance(requireContext())
+        val bookMarkLocalDataSourceImpl = BookMarkLocalDataSourceImpl(bookMarkDatabase!!)
+        val bookMarkRepositoryImpl = BookMarkRepositoryImpl(bookMarkLocalDataSourceImpl)
+        val bookMarkUseCaseImpl = BookMarkUseCaseImpl(bookMarkRepositoryImpl)
+        val factory = BookMarkViewModelFactory(bookMarkUseCaseImpl)
+        ViewModelProvider(requireActivity(), factory).get(BookMarkViewModel::class.java)
+    }
+
+    private val bookListViewModel: BookListViewModel by lazy {
+        val bookMarkDatabase = BookMarkDatabase.getInstance(requireContext())
+        val bookMarkLocalDataSourceImpl = BookMarkLocalDataSourceImpl(bookMarkDatabase!!)
+        val bookMarkRepositoryImpl = BookMarkRepositoryImpl(bookMarkLocalDataSourceImpl)
+        when (bookType) {
+            KAKAO_KEY -> {
+                val kakaoRemoteDataSourceImpl =
+                    KakaoBookRetrofitImpl.getRetrofit()
+                        .create(KakaoBookRemoteDataSource::class.java)
+                val kakaoBookDataSourceToRepositoryImpl =
+                    KakaoBookDataSourceToRepositoryImpl(kakaoRemoteDataSourceImpl)
+                val kakaoBookRepositoryImpl =
+                    BookRepositoryImpl(kakaoBookDataSourceToRepositoryImpl)
+                val kakaoBookUseCaseImpl =
+                    BookUseCaseImpl(kakaoBookRepositoryImpl, bookMarkRepositoryImpl)
+                val factory = BookListViewModelFactory(kakaoBookUseCaseImpl)
+                ViewModelProvider(this, factory).get(BookListViewModel::class.java)
+            }
+            GOOGLE_KEY -> {
+                val googleBooksRemoteDataSource =
+                    GoogleBooksRetrofitImpl.getRetrofit()
+                        .create(GoogleBooksRemoteDataSource::class.java)
+                val googleBooksDataSourceToRepositoryImpl =
+                    GoogleBooksDataSourceToRepositoryImpl(googleBooksRemoteDataSource)
+                val googleBooksRepositoryImpl =
+                    BookRepositoryImpl(
+                        googleBooksDataSourceToRepositoryImpl
+                    )
+                val googleBooksUseCaseImpl =
+                    BookUseCaseImpl(googleBooksRepositoryImpl, bookMarkRepositoryImpl)
+                val factory = BookListViewModelFactory(googleBooksUseCaseImpl)
+                ViewModelProvider(this, factory).get(BookListViewModel::class.java)
+            }
+            else -> throw IllegalArgumentException()
+        }
+    }
+
+ */
+
 
     override fun onAttach(context: Context) {
-        DaggerBookMarkComponent.factory().create(context).inject(this)
-        DaggerBookListComponent.factory().create(context).inject(this)
+        val kakoBookComponent = (requireActivity() as Dagger).kakaoBookComponent
+        val googleBooksComponent = (requireActivity() as Dagger).googleBooksComponent
+
+
+        when (bookType) {
+            KAKAO_KEY ->
+                DaggerKakaoBookSearchFragmentComponent.factory()
+                    .create(kakoBookComponent, googleBooksComponent, bookType, context).inject(this)
+            else -> DaggerGoogleBookSearchFragmentComponent.factory()
+                .create(kakoBookComponent, googleBooksComponent, bookType, context).inject(this)
+        }
+
         super.onAttach(context)
     }
 
@@ -64,38 +132,39 @@ class BookSearchFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.v("BookSearchFregment", "넘어온 검색 타입" + bookType)
         adapter = BookListAdapter({
-            //Toast.makeText(requireContext(), "참가자 ${KakaoBook.title} 입니다.", Toast.LENGTH_SHORT).show()
-            val endPoint =
-                EndPoint.ReportWrite(bookAndBookMark = it)
+            val endPoint = EndPoint.ReportWrite(bookAndBookMark = it)
             (requireActivity() as? BookReport)?.navigateFragment(endPoint)
         }, { bookAndBookMark, isBookMark ->
             when (isBookMark) {
                 true -> {
+                    Log.v("BookSearchFragment", "삭제 람다")
                     lifecycleScope.launch {
-                        bookMarkViewModel.deleteBookMark(bookMark = BookMark(bookAndBookMark.book.title))
-                        viewModel.refreshKey()
+                        bookMarkViewModel.deleteBookMark(bookMark = BookMark(bookAndBookMark.bookDocuments.title))
                     }
                 }
                 false -> {
+                    Log.v("BookSearchFragment", "세이브 람다")
                     lifecycleScope.launch {
-                        bookMarkViewModel.saveBookMark(bookMark = BookMark(bookAndBookMark.book.title))
-                        viewModel.refreshKey()
+                        bookMarkViewModel.saveBookMark(bookMark = BookMark(bookAndBookMark.bookDocuments.title))
                     }
                 }
             }
         })
-        subscribe()
-        initScrollListener()
         binding.apply {
             bookList.adapter = adapter
             btnSearch.setOnClickListener {
                 keyword = edit.text.toString()
                 if (keyword.isNotEmpty()) {
-                    viewModel.insertNewKey(keyword, 1)
+                    lifecycleScope.launch {
+                        bookListViewModel.insertKey(keyword, 1)
+                    }
                 }
             }
         }
+        subscribe()
+        initScrollListener()
     }
 
     override fun onPause() {
@@ -116,7 +185,7 @@ class BookSearchFragment : Fragment() {
         Log.v("BookSearchFragment", "onDestroy")
     }
 
-    // 뷰 모델 구독
+    /*
     private fun subscribe() {
         viewModel.bookLiveData.observe(viewLifecycleOwner) {
             // 변경된 liveData 삽입
@@ -128,17 +197,32 @@ class BookSearchFragment : Fragment() {
             Log.v("아답터아이템갯수", adapter!!.itemCount.toString())
         }
     }
-
-    // 스크롤 리스너 -> 뷰의 마지막에 닿았을때 동작
-    private fun initScrollListener() {
-        binding.bookList.addOnScrollListener(onScrollListener)
+*/
+    private fun subscribe() {
+        lifecycleScope.launchWhenStarted {
+            bookListViewModel.bookState.filterNotNull().collectLatest {
+                if (it.meta != null) {
+                    bookMetaData = it.meta
+                }
+                Log.v("subscribe", "구독")
+                Log.v("subscribe", it.entities.size.toString())
+                adapter?.setItems(it.entities)
+            }
+        }
     }
 
     private fun moreItems() {
         val keyword = binding.edit.text.toString()
-        val page = ((adapter?.itemCount)?.div(10) ?: 10) + 1
+        val page = ((adapter?.itemCount)?.div(10) ?: 1) + 1
         Log.v("페이지", page.toString())
-        viewModel.insertKey(keyword, page)
+        lifecycleScope.launch {
+            bookListViewModel.insertKey(keyword, page)
+        }
+    }
+
+    // 스크롤 리스너 -> 뷰의 마지막에 닿았을때 동작
+    private fun initScrollListener() {
+        binding.bookList.addOnScrollListener(onScrollListener)
     }
 
     private inner class OnScrollListener : RecyclerView.OnScrollListener() {
@@ -148,13 +232,16 @@ class BookSearchFragment : Fragment() {
                 (recyclerView.layoutManager as LinearLayoutManager?)!!.findLastVisibleItemPosition()
             val itemCount = (adapter?.itemCount?.minus(1) ?: 10)
 
-            if (itemCount == lastVisibleItemPosition) {
-                if (bookMetaData.isEnd == false) {
-                    moreItems()
-                } else {
-                    Toast.makeText(requireContext(), "마지막 페이지 입니다.", Toast.LENGTH_SHORT).show()
-                    binding.bookList.post {
-                        adapter?.unsetLoading()
+            if (!binding.bookList.canScrollVertically(1) && itemCount == lastVisibleItemPosition) {
+                Log.v("BookSearchFragment", "onScrolled")
+                if (bookMetaData != null) {
+                    if (bookMetaData?.isEnd == false) {
+                        moreItems()
+                    } else {
+                        Toast.makeText(requireContext(), "마지막 페이지 입니다.", Toast.LENGTH_SHORT).show()
+                        binding.bookList.post {
+                            adapter?.unsetLoading()
+                        }
                     }
                 }
             }

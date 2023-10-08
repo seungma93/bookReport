@@ -1,15 +1,15 @@
 package com.example.bookreport.domain
 
-import android.util.Log
-import com.example.bookreport.data.entity.room.BookMark
 import com.example.bookreport.data.entity.BookMarkEntity
+import com.example.bookreport.data.entity.room.BookMark
 import com.example.bookreport.repository.BookMarkRepository
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 interface BookMarkUseCase{
     suspend fun saveBookMark(bookMark: BookMark)
     suspend fun deleteBookMark(bookMark: BookMark)
-    suspend fun loadBookMark(): BookMarkEntity
+    suspend fun loadBookMark(): Flow<List<BookMark>>
 }
 
 class BookMarkUseCaseImpl @Inject constructor(private val bookMarkRepository: BookMarkRepository): BookMarkUseCase {
@@ -21,7 +21,7 @@ class BookMarkUseCaseImpl @Inject constructor(private val bookMarkRepository: Bo
         bookMarkRepository.deleteData(bookMark)
     }
 
-    override suspend fun loadBookMark(): BookMarkEntity {
+    override suspend fun loadBookMark(): Flow<List<BookMark>> {
         return bookMarkRepository.selectData()
     }
 }

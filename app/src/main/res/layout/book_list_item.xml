@@ -19,10 +19,15 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toRightOf="@+id/book_no"/>
     <TextView
+        android:id="@+id/book_isbn"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/book_title"/>
+    <TextView
         android:id="@+id/book_writer"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/book_title"/>
+        app:layout_constraintTop_toBottomOf="@id/book_isbn"/>
     <TextView
         android:id="@+id/book_contents"
         android:layout_width="250dp"

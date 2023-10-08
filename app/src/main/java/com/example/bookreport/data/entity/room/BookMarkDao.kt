@@ -1,6 +1,8 @@
 package com.example.bookreport.data.entity.room
 
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
+
 
 @Dao
 interface BookMarkDao {
@@ -14,9 +16,8 @@ interface BookMarkDao {
     suspend fun delete(bookMark: BookMark)
 
 
-
     @Query("SELECT * FROM BookMark")
-    suspend fun getAll(): List<BookMark>
+    fun getAllBookMakrs(): Flow<List<BookMark>>
 /*
     @Query("DELETE FROM User ")
     suspend fun deleteAll()

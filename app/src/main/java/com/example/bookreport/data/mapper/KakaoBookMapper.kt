@@ -1,26 +1,21 @@
 package com.example.bookreport.data.mapper
 
-import com.example.bookreport.BookMetaResponse
-import com.example.bookreport.BookResponse
-import com.example.bookreport.ResultSearchKeywordResponse
-import com.example.bookreport.data.entity.KakaoBook
-import com.example.bookreport.data.entity.KakaoBookMeta
-import com.example.bookreport.data.entity.KakaoBookResultEntity
+import com.example.bookreport.*
+import com.example.bookreport.data.entity.*
 
-fun ResultSearchKeywordResponse.toEntity() = KakaoBookResultEntity(
-    meta = meta.toEntity(),
-    documents = documents.map {
-        it.toEntity()
+fun KakaoBookResponse.toEntity() = BookEntity.KakaoBookEntity(
+    meta = meta.toMeta(),
+    items = documents.map {
+        it.toDocument()
     }
 )
 
-fun BookMetaResponse.toEntity() = KakaoBookMeta(
+fun KakaoBookMetaResponse.toMeta() = Meta.KakaoBookMeta(
     totalCount = totalCount ?: 0,
-    pageableCount = pageableCount ?: 0,
     isEnd = isEnd ?: true
 )
 
-fun BookResponse.toEntity() = KakaoBook(
+fun KakaoBookDocumentsResponse.toDocument() = Documents(
     title = title.orEmpty(),
     contents = contents.orEmpty(),
     url = url.orEmpty(),
@@ -28,9 +23,5 @@ fun BookResponse.toEntity() = KakaoBook(
     datetime = datetime.orEmpty(),
     authors = authors.orEmpty(),
     publisher = publisher.orEmpty(),
-    translators = translators.orEmpty(),
-    price = price ?: 0,
-    salePrice = sale_price ?: 0,
-    thumbnail = thumbnail.orEmpty(),
-    status = status.orEmpty()
+    thumbnail = thumbnail.orEmpty()
 )

@@ -1,14 +1,11 @@
-package com.example.bookreport.presenter
+package com.example.bookreport.presenter.adapter
 
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.bookreport.data.entity.BookAndBookMark
-import com.example.bookreport.data.entity.BookListEntity
-import com.example.bookreport.data.entity.KakaoBook
 import com.example.bookreport.databinding.BookListItemBinding
 import com.example.bookreport.databinding.ItemLoadingBinding
 import kotlinx.coroutines.delay
@@ -30,7 +27,6 @@ class BookListAdapter(
 
     val datalist = mutableListOf<Item>()
 
-    // 뷰홀더 생성
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             TYPE_ITEM -> {
@@ -39,51 +35,33 @@ class BookListAdapter(
                 ViewHolder(binding, itemClick, bookMarkClick)
             }
             else -> {
-                Log.v("BookListAdapter", " onCreateViewHolder")
                 val binding =
                     ItemLoadingBinding.inflate(LayoutInflater.from(parent.context), parent, false)
                 LoadingViewHolder(binding)
             }
         }
-
-
     }
 
-    // 뷰홀더에서 아이템 바인드
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is ViewHolder) {
             val item = datalist[position] as? Item.BookData
-            kotlin.runCatching {
-                if (item?.bookData != null) holder.bind(
-                    item.bookData,
-                    position
-                ) else throw NullPointerException("에러")
-            }.onFailure {
-                it.printStackTrace()
-            }
-
+            if (item?.bookData != null) holder.bind(item.bookData, position)
         } else {
         }
     }
 
-    // 아이템 갯수
     override fun getItemCount(): Int {
         return datalist.size
     }
 
     fun setItems(newItems: List<BookAndBookMark>) {
-        Log.v("setItem", "")
-        // data 초기화
         datalist.clear()
-        // 모든 데이터 add
         val item = newItems.map { Item.BookData(it) }
         val loadingItem = Item.LoadingState
         datalist.addAll(item)
         datalist.add(loadingItem)
-        // 데이터 변경을 알림
         notifyDataSetChanged()
     }
-
 
     fun unsetLoading() {
         val item = Item.LoadingState
@@ -118,7 +96,8 @@ class BookListAdapter(
             }
             binding.btnBookmark.setOnClickListener {
                 book?.let {
-                    when(binding.btnBookmark.isSelected){
+                    Log.v("BookListAdapter", "onClick 실행")
+                    when (binding.btnBookmark.isSelected) {
                         true -> bookMarkClick(it, true)
                         false -> bookMarkClick(it, false)
                     }
@@ -126,16 +105,19 @@ class BookListAdapter(
             }
         }
 
-        // 아이템 바인드 펑션
+        // 아이템 바인드
         fun bind(entity: BookAndBookMark, position: Int) = with(entity) {
             this@ViewHolder.book = this
             binding.apply {
                 bookNo.text = position.toString()
-                bookTitle.text = book.title
-                bookContents.text = book.contents
-                Glide.with(itemView.context).load(book.thumbnail).into(bookThumbnail)
+                bookTitle.text = bookDocuments.title
+                bookIsbn.text = bookDocuments.isbn
+                bookContents.text = bookDocuments.title
+                Glide.with(itemView.context)
+                    .load(bookDocuments.thumbnail)
+                    .into(bookThumbnail)
                 btnBookmark.isSelected = bookMark != null
-                Log.v("아이템", position.toString())
+                Log.v("bind", bookMark?.title.orEmpty())
             }
         }
     }

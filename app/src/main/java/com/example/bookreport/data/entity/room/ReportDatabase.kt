@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import javax.inject.Inject
 
 
 @Database(entities = [Report::class], version = 1)
@@ -16,7 +17,7 @@ abstract class ReportDatabase : RoomDatabase() {
         private var instance: ReportDatabase? = null
 
         @Synchronized
-        fun getInstance(context: Context): ReportDatabase? {
+        fun getInstance (context: Context): ReportDatabase? {
             if (instance == null) {
                 synchronized(ReportDatabase::class) {
                     instance = Room.databaseBuilder(

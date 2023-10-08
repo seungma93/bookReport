@@ -6,19 +6,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.bookreport.data.entity.room.BookMark
 import com.example.bookreport.data.entity.room.Report
 import com.example.bookreport.databinding.FragmentReportEditBinding
-import com.example.bookreport.di.DaggerBookListComponent
-import com.example.bookreport.di.DaggerBookMarkComponent
-import com.example.bookreport.di.DaggerReportComponent
+import com.example.bookreport.di.component.DaggerReportEditWriteFragmentComponent
 import com.example.bookreport.presenter.BookReport
 import com.example.bookreport.presenter.EndPoint
-import com.example.bookreport.presenter.viewmodel.*
-import kotlinx.coroutines.*
+import com.example.bookreport.presenter.viewmodel.BookMarkViewModel
+import com.example.bookreport.presenter.viewmodel.ReportViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class ReportEditFragment : Fragment() {
@@ -32,18 +37,34 @@ class ReportEditFragment : Fragment() {
 
     @Inject
     lateinit var reportViewModelFactory: ViewModelProvider.Factory
-    private val viewModel: ReportViewModel by activityViewModels { reportViewModelFactory }
+    private val reportViewModel: ReportViewModel by viewModels { reportViewModelFactory }
     @Inject
     lateinit var bookMarkViewModelFactory: ViewModelProvider.Factory
-    private val bookMarkViewModel: BookMarkViewModel by activityViewModels { bookMarkViewModelFactory }
-    @Inject
-    lateinit var bookListViewModelFactory: ViewModelProvider.Factory
-    private val bookListViewModel: BookViewModel by activityViewModels { bookListViewModelFactory }
+    private val bookMarkViewModel: BookMarkViewModel by viewModels { bookMarkViewModelFactory }
+
+    /*
+    private val bookMarkViewModel: BookMarkViewModel by lazy {
+        val bookMarkDatabase = BookMarkDatabase.getInstance(requireContext())
+        val bookMarkLocalDataSourceImpl = BookMarkLocalDataSourceImpl(bookMarkDatabase!!)
+        val bookMarkRepositoryImpl = BookMarkRepositoryImpl(bookMarkLocalDataSourceImpl)
+        val bookMarkUseCaseImpl = BookMarkUseCaseImpl(bookMarkRepositoryImpl)
+        val factory = BookMarkViewModelFactory(bookMarkUseCaseImpl)
+        ViewModelProvider(requireActivity(), factory).get(BookMarkViewModel::class.java)
+    }
+
+    private val reportViewModel: ReportViewModel by lazy {
+        val reportDatabase = ReportDatabase.getInstance(requireContext())
+        val reportLocalDataSourceImpl = ReportLocalDataSourceImpl(reportDatabase!!)
+        val reportRepositoryImpl = ReportRepositoryImpl(reportLocalDataSourceImpl)
+        val reportUseCaseImpl = ReportUseCaseImpl(reportRepositoryImpl)
+        val factory = ReportViewModelFactory(reportUseCaseImpl)
+        ViewModelProvider(requireActivity(), factory).get(ReportViewModel::class.java)
+    }
+
+     */
 
     override fun onAttach(context: Context) {
-        DaggerReportComponent.factory().create(context).inject(this)
-        DaggerBookListComponent.factory().create(context).inject(this)
-        DaggerBookMarkComponent.factory().create(context).inject(this)
+        DaggerReportEditWriteFragmentComponent.factory().create(context).inject(this)
         super.onAttach(context)
     }
 
@@ -76,8 +97,8 @@ class ReportEditFragment : Fragment() {
                 CoroutineScope(Dispatchers.IO).launch {
                     val context = binding.reportContext.text.toString()
                     val report = Report(book = report.book, context = context, no = report.no)
-                    viewModel.edit(report)
-                    viewModel.load()
+                    reportViewModel.edit(report)
+                    reportViewModel.load()
                     withContext(Dispatchers.Main) {
                         val endPoint = EndPoint.ReportList(1)
                         (requireActivity() as? BookReport)?.navigateFragment(endPoint)
@@ -88,7 +109,6 @@ class ReportEditFragment : Fragment() {
                 if (btnBookmark.isSelected.not()) {
                     CoroutineScope(Dispatchers.IO).launch {
                         bookMarkViewModel.saveBookMark(bookMark = BookMark(report.book.title))
-                        bookListViewModel.refreshKey()
                         withContext(Dispatchers.Main) {
                             btnBookmark.isSelected = true
                         }
@@ -96,7 +116,6 @@ class ReportEditFragment : Fragment() {
                 } else {
                     CoroutineScope(Dispatchers.IO).launch {
                         bookMarkViewModel.deleteBookMark(bookMark = BookMark(report.book.title))
-                        bookListViewModel.refreshKey()
                         withContext(Dispatchers.Main) {
                             btnBookmark.isSelected = false
                         }
@@ -110,13 +129,26 @@ class ReportEditFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
+/*
     fun subscribe() {
         bookMarkViewModel.bookMarkLiveData.observe(viewLifecycleOwner) {
             binding.btnBookmark.isSelected = false
             it.bookMarks.map {
                 if (it.title == report.book.title) {
                     binding.btnBookmark.isSelected = true
+                }
+            }
+        }
+    }
+ */
+    private fun subscribe() {
+        lifecycleScope.launchWhenStarted {
+            bookMarkViewModel.bookMarkState.filterNotNull().collectLatest { bookMarkEntity ->
+                binding.btnBookmark.isSelected = false
+                bookMarkEntity.bookMarks.map {
+                    if (it.title == report.book.title) {
+                        binding.btnBookmark.isSelected = true
+                    }
                 }
             }
         }
